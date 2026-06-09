@@ -2,9 +2,9 @@
   "name": "The Plan",
   "short_name": "The Plan",
   "description": "Personal training and nutrition plan",
-  "start_url": "./",
+  "start_url": "/the-plan/",
   "display": "standalone",
-  "background_color": "#1a1510",
+  "background_color": "#f5f2ee",
   "theme_color": "#1a1510",
   "orientation": "portrait",
   "icons": [

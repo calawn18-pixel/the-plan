@@ -18,7 +18,8 @@
 :root{
   --bg:#f5f2ee;--surface:#fff;--surface2:#f0ece6;--border:#e0d8d0;--border2:#ccc4b8;
   --ink:#1a1510;--ink2:#4a4038;--ink3:#5a524a;
-  --accent:#d4541a;--accent-light:#faf0ea;
+  --accent:#39ff14;
+  --accent-text:#1a8c00;--accent-light:#edffd6;
   --green:#2a7a4a;--green-light:#eaf5ee;
   --blue:#1a5fa0;--blue-light:#eaf2fc;
   --gold:#8a6a1a;--gold-light:#fdf5e0;
@@ -36,7 +37,7 @@ button{font-family:var(--inter);cursor:pointer;-webkit-tap-highlight-color:trans
 /* ── HEADER ── */
 .app-header{
   height:var(--header-h);flex-shrink:0;
-  background:var(--ink);color:#f0ece6;
+  background:#111111;color:#f0ece6;
   display:flex;align-items:center;justify-content:space-between;
   padding:0 18px;
   position:sticky;top:0;z-index:30;
@@ -54,7 +55,7 @@ button{font-family:var(--inter);cursor:pointer;-webkit-tap-highlight-color:trans
 .wc-toggle-btn svg{width:14px;height:14px;}
 
 /* calcs pill in header */
-.header-calc{font-size:10px;font-weight:600;color:var(--accent);background:rgba(212,84,26,0.2);border-radius:20px;padding:3px 9px;display:none;}
+.header-calc{font-size:10px;font-weight:600;color:var(--accent);background:rgba(57,255,20,0.15);border-radius:20px;padding:3px 9px;display:none;}
 
 /* ── SCROLL BODY ── */
 .app-body{
@@ -67,7 +68,7 @@ button{font-family:var(--inter);cursor:pointer;-webkit-tap-highlight-color:trans
 /* ── FOOTER NAV ── */
 .app-footer{
   height:var(--footer-h);flex-shrink:0;
-  background:var(--ink);border-top:1px solid rgba(255,255,255,0.08);
+  background:#111111;border-top:1px solid rgba(255,255,255,0.08);
   display:grid;grid-template-columns:repeat(5,1fr);
   padding-bottom:env(safe-area-inset-bottom,0px);
   position:sticky;bottom:0;z-index:30;
@@ -110,16 +111,16 @@ button{font-family:var(--inter);cursor:pointer;-webkit-tap-highlight-color:trans
 .calc-cell{flex:1;padding:8px 6px;text-align:center;border-right:1px solid var(--border);}
 .calc-cell:last-child{border-right:none;}
 .calc-val{font-family:var(--syne);font-size:13px;font-weight:800;}
-.calc-val.c-accent{color:var(--accent);}
+.calc-val.c-accent{color:var(--accent-text);}
 .calc-val.c-green{color:var(--green);}
 .calc-val.c-blue{color:var(--blue);}
 .calc-lbl{font-size:8px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink3);margin-top:1px;}
 
 /* ── CREATINE BANNER ── */
-.creatine-strip{background:rgba(212,84,26,0.1);border:1px solid rgba(212,84,26,0.25);border-radius:8px;padding:8px 12px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.creatine-strip{background:rgba(57,255,20,0.1);border:1px solid rgba(57,255,20,0.3);border-radius:8px;padding:8px 12px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
 .creatine-strip-icon{font-size:14px;}
 .creatine-strip-text{font-size:11px;color:var(--ink2);line-height:1.4;flex:1;}
-.creatine-strip-text strong{color:var(--accent);font-weight:700;}
+.creatine-strip-text strong{color:var(--accent-text);font-weight:700;}
 
 /* ── WEEK STRIP ── */
 .week-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px;}
@@ -133,7 +134,7 @@ button{font-family:var(--inter);cursor:pointer;-webkit-tap-highlight-color:trans
 .day-btn.type-train{border-top:3px solid var(--green);}
 .day-btn.type-rest{border-top:3px solid var(--ink3);}
 .day-btn.type-flex{border-top:3px solid var(--gold);}
-.day-btn.active{border-color:var(--ink);background:var(--ink);color:#f0ece6;}
+.day-btn.active{border-color:var(--ink);background:#111111;color:#f0ece6;}
 .day-btn.active.type-train{border-color:var(--green);background:var(--green);color:#fff;}
 .day-btn.active.type-flex{border-color:var(--gold);background:var(--gold-light);color:var(--ink);}
 .day-abbr{font-size:8px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink3);}
@@ -144,7 +145,7 @@ button{font-family:var(--inter);cursor:pointer;-webkit-tap-highlight-color:trans
 
 /* ── DAY CARD ── */
 .day-card{background:var(--surface);border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:4px;}
-.day-card-header{padding:16px 16px 14px;background:var(--ink);color:#f0ece6;}
+.day-card-header{padding:16px 16px 14px;background:#111111;color:#f0ece6;}
 .dch-title{font-family:var(--syne);font-size:18px;font-weight:800;letter-spacing:-0.3px;margin-bottom:4px;}
 .dch-desc{font-size:11px;color:rgba(240,236,230,0.55);line-height:1.5;margin-bottom:8px;}
 .dch-badges{display:flex;flex-wrap:wrap;gap:4px;}
@@ -159,7 +160,7 @@ button{font-family:var(--inter);cursor:pointer;-webkit-tap-highlight-color:trans
 
 .card-tabs{display:flex;border-bottom:1px solid var(--border);}
 .card-tab{flex:1;padding:11px 8px;text-align:center;font-size:12px;font-weight:700;cursor:pointer;color:var(--ink3);border:none;border-bottom:2px solid transparent;background:none;transition:all 0.15s;font-family:var(--syne);touch-action:manipulation;}
-.card-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.card-tab.active{color:var(--accent-text);border-bottom-color:var(--accent);}
 .card-panel{display:none;padding:14px 14px;}
 .card-panel.active{display:block;}
 
@@ -180,10 +181,10 @@ button{font-family:var(--inter);cursor:pointer;-webkit-tap-highlight-color:trans
 .ex-name{font-family:var(--syne);font-weight:700;font-size:13px;color:var(--ink);margin-bottom:3px;}
 .ex-tags{display:flex;gap:3px;flex-wrap:wrap;}
 .ex-tag{font-size:8px;padding:2px 6px;border-radius:20px;font-weight:600;}
-.ex-tag-compound{background:var(--accent-light);color:var(--accent);}
+.ex-tag-compound{background:#d4f5c0;color:#1a6600;}
 .ex-tag-overhead{background:var(--blue-light);color:var(--blue);}
 .ex-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;padding:10px 12px 10px 0;justify-content:center;}
-.ex-scheme{font-family:var(--syne);font-size:12px;font-weight:700;color:var(--accent);}
+.ex-scheme{font-family:var(--syne);font-size:12px;font-weight:700;color:var(--accent-text);}
 .progress-badge{font-size:8px;font-weight:700;background:var(--green-light);color:var(--green);padding:2px 6px;border-radius:20px;border:1px solid var(--green);}
 .ex-chevron{color:var(--ink3);transition:transform 0.2s;flex-shrink:0;}
 .ex-row.open .ex-chevron{transform:rotate(180deg);}
@@ -217,7 +218,7 @@ button{font-family:var(--inter);cursor:pointer;-webkit-tap-highlight-color:trans
 .feel-btn.f-learning.active{background:#fff8e0;border-color:var(--gold);color:var(--gold);}
 .feel-btn.f-comfortable.active{background:var(--green-light);border-color:var(--green);color:var(--green);}
 .feel-btn.f-strong.active{background:var(--blue-light);border-color:var(--blue);color:var(--blue);}
-.save-session-btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;width:100%;font-family:var(--syne);min-height:48px;touch-action:manipulation;}
+.save-session-btn{background:var(--accent);color:#0a0a0a;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;width:100%;font-family:var(--syne);min-height:48px;touch-action:manipulation;}
 .save-session-btn:active{opacity:0.85;}
 .progress-hint-box{background:var(--green-light);border:1px solid var(--green);border-radius:7px;padding:9px 12px;font-size:12px;color:var(--green);margin-top:8px;line-height:1.5;display:none;}
 .progress-hint-box.visible{display:block;}
@@ -350,7 +351,7 @@ button{font-family:var(--inter);cursor:pointer;-webkit-tap-highlight-color:trans
 
 /* ── INLINE TIMER ── */
 .inline-timer {
-  background: var(--ink);
+  background:#111111;
   border-radius: 10px;
   padding: 14px;
   margin-bottom: 12px;
@@ -362,7 +363,7 @@ button{font-family:var(--inter);cursor:pointer;-webkit-tap-highlight-color:trans
   font-family: var(--syne);
   font-size: 32px;
   font-weight: 800;
-  color: #f0ece6;
+  color:#f0ece6;
   letter-spacing: 2px;
 }
 .timer-display.running { color: var(--accent); }
@@ -484,7 +485,7 @@ button{font-family:var(--inter);cursor:pointer;-webkit-tap-highlight-color:trans
   <main class="app-body" id="main-content">
 
     <div class="page active" id="page-week">
-      <div id="session-timer-bar" style="display:none;background:var(--ink);border-radius:10px;padding:12px 16px;margin-bottom:14px;display:none;align-items:center;justify-content:space-between;">
+      <div id="session-timer-bar" style="display:none;background:#111111;border-radius:10px;padding:12px 16px;margin-bottom:14px;display:none;align-items:center;justify-content:space-between;">
         <div>
           <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(240,236,230,0.5);">Session in progress</div>
           <div id="session-timer-display" style="font-family:var(--syne);font-size:22px;font-weight:800;color:#f0ece6;">00:00</div>
@@ -513,7 +514,7 @@ button{font-family:var(--inter);cursor:pointer;-webkit-tap-highlight-color:trans
       <div class="page-title">Food</div>
       <div class="page-sub">Shopping list and batch cook schedule.</div>
       <div style="display:flex;gap:8px;margin-bottom:18px;">
-        <button onclick="setFoodTab('shop')" id="food-tab-shop" style="flex:1;padding:9px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-family:var(--syne);font-size:12px;font-weight:700;cursor:pointer;min-height:40px;">Shopping</button>
+        <button onclick="setFoodTab('shop')" id="food-tab-shop" style="flex:1;padding:9px;border-radius:8px;border:none;background:var(--accent);color:#0a0a0a;font-family:var(--syne);font-size:12px;font-weight:700;cursor:pointer;min-height:40px;">Shopping</button>
         <button onclick="setFoodTab('cook')" id="food-tab-cook" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);color:var(--ink3);font-family:var(--syne);font-size:12px;font-weight:700;cursor:pointer;min-height:40px;">Cook-Off</button>
       </div>
       <div id="food-shop-content"></div>
@@ -640,7 +641,7 @@ button{font-family:var(--inter);cursor:pointer;-webkit-tap-highlight-color:trans
 <div id="week-sub" style="display:none;"></div>
 <div id="calc-water-rest" style="display:none;">
 <!-- End session modal -->
-<div id="session-end-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:flex-end;justify-content:center;">
+<div id="session-end-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;align-items:flex-end;justify-content:center;">
   <div style="background:var(--bg);border-radius:16px 16px 0 0;padding:24px 20px 40px;width:100%;max-width:600px;max-height:85vh;overflow-y:auto;">
     <div style="font-family:var(--syne);font-size:20px;font-weight:800;margin-bottom:4px;">Session complete</div>
     <div id="modal-duration" style="font-size:13px;color:var(--ink3);margin-bottom:20px;"></div>
@@ -2624,12 +2625,12 @@ function setFoodTab(tab) {
   const shopContent = document.getElementById('food-shop-content');
   const cookContent = document.getElementById('food-cook-content');
   if (tab === 'shop') {
-    if (shopBtn) { shopBtn.style.background='var(--accent)'; shopBtn.style.color='#fff'; shopBtn.style.border='none'; }
+    if (shopBtn) { shopBtn.style.background='var(--accent)'; shopBtn.style.color='#0a0a0a'; shopBtn.style.border='none'; }
     if (cookBtn) { cookBtn.style.background='var(--surface)'; cookBtn.style.color='var(--ink3)'; cookBtn.style.border='1px solid var(--border2)'; }
     if (shopContent) shopContent.style.display='block';
     if (cookContent) cookContent.style.display='none';
   } else {
-    if (cookBtn) { cookBtn.style.background='var(--accent)'; cookBtn.style.color='#fff'; cookBtn.style.border='none'; }
+    if (cookBtn) { cookBtn.style.background='var(--accent)'; cookBtn.style.color='#0a0a0a'; cookBtn.style.border='none'; }
     if (shopBtn) { shopBtn.style.background='var(--surface)'; shopBtn.style.color='var(--ink3)'; shopBtn.style.border='1px solid var(--border2)'; }
     if (shopContent) shopContent.style.display='none';
     if (cookContent) cookContent.style.display='block';
