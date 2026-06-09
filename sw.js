@@ -1,10 +1,10 @@
-const CACHE = 'the-plan-v1';
+const CACHE = 'the-plan-v2';
 const ASSETS = [
-  './the-plan.html',
+  './',
+  './index.html',
   './manifest.json'
 ];
 
-// Install — cache core assets
 self.addEventListener('install', function(e) {
   e.waitUntil(
     caches.open(CACHE).then(function(cache) {
@@ -14,7 +14,6 @@ self.addEventListener('install', function(e) {
   self.skipWaiting();
 });
 
-// Activate — clean up old caches
 self.addEventListener('activate', function(e) {
   e.waitUntil(
     caches.keys().then(function(keys) {
@@ -27,13 +26,10 @@ self.addEventListener('activate', function(e) {
   self.clients.claim();
 });
 
-// Fetch — network first, fall back to cache
-// This means updates are picked up immediately when online
 self.addEventListener('fetch', function(e) {
   e.respondWith(
     fetch(e.request)
       .then(function(response) {
-        // Update cache with fresh response
         const clone = response.clone();
         caches.open(CACHE).then(function(cache) {
           cache.put(e.request, clone);
@@ -41,8 +37,7 @@ self.addEventListener('fetch', function(e) {
         return response;
       })
       .catch(function() {
-        // Offline — serve from cache
-        return caches.match(e.request);
+        return caches.match(e.request) || caches.match('./index.html');
       })
   );
 });
