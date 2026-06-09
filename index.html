@@ -808,7 +808,8 @@ function checkProgressionGate(exId) {
   const kbJump = parseFloat(document.getElementById('cfg-kb-jump')?.value || '4');
 
   const EXERCISES_REF = EXERCISES;
-  const exData = EXERCISES_REF[exId];
+  const rawExId = exId.includes(':') ? exId.split(':')[1] : exId;
+  const exData = EXERCISES_REF[rawExId];
   if (!exData) return null;
 
   let inc = dbInc;
@@ -1772,7 +1773,7 @@ function renderDayDetail(i) {
         const isOpen = openExercise === id;
         const gate = checkProgressionGate(id);
         const progBadge = gate ? '<span class="progress-badge">&#x2192; Progress</span>' : '';
-        workoutHtml += buildExerciseCard(id, ex, zone, isOpen, progBadge);
+        workoutHtml += buildExerciseCard(id, ex, zone, isOpen, progBadge, d.session);
       }
       workoutHtml += '</div>';
     }
@@ -1819,16 +1820,17 @@ function renderDayDetail(i) {
     '</div>';
 }
 
-function buildExerciseCard(id, ex, zone, isOpen, progBadge) {
+function buildExerciseCard(id, ex, zone, isOpen, progBadge, session) {
+  const logKey = (session || '') + ':' + id;
   const logs = getSessionLogs();
-  const log = logs[id] || {};
+  const log = logs[logKey] || {};
   const schemeMatch = ex.scheme.match(/(\d+)×(\d+)/);
   const defaultSets = schemeMatch ? parseInt(schemeMatch[1]) : 3;
   const defaultReps = schemeMatch ? parseInt(schemeMatch[2]) : 10;
   const sets = log.sets && log.sets.length ? log.sets : Array(defaultSets).fill(null).map(() => ({ weight: log.lastWeight || '', reps: defaultReps, logged: false }));
   const feel = log.feel || '';
 
-  const _logData = logs[id];
+  const _logData = logs[logKey];
   const isLogged = _logData && _logData.lastLogged && _logData.lastLogged === activeDateStr && _logData.sets && _logData.sets.some(function(s){return s.logged;});
   const loggedBadge = isLogged ? '<span class="logged-badge">&#x2713; ' + (_logData.lastLogged||'') + '</span>' : '';
 
@@ -1843,7 +1845,7 @@ function buildExerciseCard(id, ex, zone, isOpen, progBadge) {
     const setRows = sets.map((s,idx) =>
       '<div class="set-row">' +
       '<span class="set-num">Set ' + (idx+1) + '</span>' +
-      '<button type="button" class="weighted-toggle ' + (s.weighted===false?'bw':'wt') + '" data-exid="' + id + '" data-idx="' + idx + '" onclick="handleWeightedToggle(this)" aria-label="Toggle weighted/bodyweight">' + (s.weighted===false ? '&#x1F9B5; BW' : '&#x2696; Wtd') + '</button>' +
+      '<button type="button" class="weighted-toggle ' + (s.weighted===false?'bw':'wt') + '" data-exid="' + id + '" data-session="' + (session||'') + '" data-idx="' + idx + '" onclick="handleWeightedToggle(this)" aria-label="Toggle weighted/bodyweight">' + (s.weighted===false ? '&#x1F9B5; BW' : '&#x2696; Wtd') + '</button>' +
       (s.weighted===false ? '' : '<input type="number" class="set-input w-input" value="' + (s.weight||'') + '" placeholder="kg" step="0.5" min="0" aria-label="Set ' + (idx+1) + ' weight" data-exid="' + id + '" data-idx="' + idx + '" data-field="weight" onchange="handleSetInput(this)">') +
       '<input type="number" class="set-input r-input" value="' + (s.reps||defaultReps) + '" placeholder="reps" min="1" aria-label="Set ' + (idx+1) + ' reps" data-exid="' + id + '" data-idx="' + idx + '" data-field="reps" onchange="handleSetInput(this)">' +
       '<span class="set-unit">reps</span>' +
@@ -1880,7 +1882,7 @@ function buildExerciseCard(id, ex, zone, isOpen, progBadge) {
         '<button type="button" class="timer-start-btn" data-exid="' + id + '" data-duration="' + TIMED_EXERCISES[id] + '" onclick="handleTimerStart(this)">&#x25B6; Start</button>' +
         '</div>'
         : '') +
-      '<div class="session-logger">' +
+      '<div class="session-logger" data-session="' + (session||'') + '">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
       '<div class="logger-title" style="margin-bottom:0;">Log this session</div>' +
       (BODYWEIGHT_EXERCISES.has(id) ? '' :
@@ -1970,7 +1972,8 @@ function switchCardTab(tab, panelId) {
 function initExerciseLogs(id) {
   const logs = getSessionLogs();
   if (!logs[id]) {
-    const ex = EXERCISES[id];
+    const rawId = id.includes(':') ? id.split(':')[1] : id;
+    const ex = EXERCISES[rawId];
     const m = ex && ex.scheme ? ex.scheme.match(/(\d+)×(\d+)/) : null;
     const defaultSets = m ? parseInt(m[1]) : 3;
     const defaultReps = m ? parseInt(m[2]) : 10;
@@ -2035,7 +2038,7 @@ function handleTimerStart(btn) {
 
 // ─── PER SIDE TOGGLE ──────────────────────────────────────────
 function handlePerSideToggle(btn) {
-  const exId = btn.dataset.exid;
+  const exId = getLogKey(btn);
   initExerciseLogs(exId);
   const logs = getSessionLogs();
   if (!logs[exId]) return;
@@ -2073,18 +2076,18 @@ function saveExerciseSession(exId) {
 
 function handleShop(btn) { toggleShop(btn.dataset.key, btn); }
 function handleKitChange(el) { saveKitItem(el.dataset.kitid, el.value); }
-function handleSave(btn) { saveExerciseSession(btn.dataset.exid); }
+function handleSave(btn) { saveExerciseSession(getLogKey(btn)); }
 function handleToggleEx(btn) { toggleEx(btn.dataset.exid); }
 function handleFeel(btn) {
-  setFeel(btn.dataset.exid, btn.dataset.feel, btn);
+  setFeel(getLogKey(btn), btn.dataset.feel, btn);
 }
 function handleAccept(btn) {
-  acceptProgression(btn.dataset.exid);
+  acceptProgression(getLogKey(btn));
 }
 
 
 function handleWeightedToggle(btn) {
-  const exId = btn.dataset.exid;
+  const exId = getLogKey(btn);
   const idx = parseInt(btn.dataset.idx);
   initExerciseLogs(exId);
   const logs = getSessionLogs();
@@ -2098,11 +2101,18 @@ function handleWeightedToggle(btn) {
   renderDayDetail(activeDay);
 }
 
+
+function getLogKey(el) {
+  const exid = el.dataset.exid;
+  const sess = el.dataset.session || el.closest('[data-session]')?.dataset.session || '';
+  return sess + ':' + exid;
+}
+
 function handleSetInput(el) {
-  updateSetField(el.dataset.exid, parseInt(el.dataset.idx), el.dataset.field, el.value);
+  updateSetField(getLogKey(el), parseInt(el.dataset.idx), el.dataset.field, el.value);
 }
 function handleSetDone(btn) {
-  toggleSetDone(btn.dataset.exid, parseInt(btn.dataset.idx), btn);
+  toggleSetDone(getLogKey(btn), parseInt(btn.dataset.idx), btn);
 }
 
 function updateSetField(exId, setIdx, field, val) {
@@ -2540,7 +2550,8 @@ function saveSessionToHistory(feel, durationStr) {
   if (day.zones) {
     Object.values(day.zones).flat().forEach(function(exId) {
       const log = logs[exId];
-      const ex = EXERCISES[exId];
+      const rawExId2 = exId.includes(':') ? exId.split(':')[1] : exId;
+      const ex = EXERCISES[rawExId2];
       if (!log || !ex) return;
       const validSets = (log.sets || []).filter(function(s){ return s.reps > 0; });
       if (!validSets.length) return;
