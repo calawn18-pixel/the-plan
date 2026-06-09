@@ -1,0 +1,2708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a1510">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="The Plan">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>The Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f2ee;--surface:#fff;--surface2:#f0ece6;--border:#e0d8d0;--border2:#ccc4b8;
+  --ink:#1a1510;--ink2:#4a4038;--ink3:#5a524a;
+  --accent:#d4541a;--accent-light:#faf0ea;
+  --green:#2a7a4a;--green-light:#eaf5ee;
+  --blue:#1a5fa0;--blue-light:#eaf2fc;
+  --gold:#8a6a1a;--gold-light:#fdf5e0;
+  --syne:'Syne',sans-serif;--inter:'Inter',sans-serif;
+  --header-h:54px;--footer-h:62px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--inter);font-size:15px;line-height:1.6;overscroll-behavior:none;}
+button{font-family:var(--inter);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+*{-webkit-tap-highlight-color:transparent;}
+
+/* ── APP SHELL ── */
+.app{display:flex;flex-direction:column;height:100dvh;max-width:600px;margin:0 auto;background:var(--bg);position:relative;}
+
+/* ── HEADER ── */
+.app-header{
+  height:var(--header-h);flex-shrink:0;
+  background:var(--ink);color:#f0ece6;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;
+  position:sticky;top:0;z-index:30;
+}
+.app-header-brand{font-family:var(--syne);font-size:20px;font-weight:800;letter-spacing:-0.3px;}
+.app-header-brand span{color:var(--accent);}
+.app-header-right{display:flex;align-items:center;gap:10px;}
+.wc-toggle-btn{
+  background:none;border:1px solid rgba(255,255,255,0.15);border-radius:20px;
+  color:rgba(240,236,230,0.6);font-size:11px;font-weight:600;
+  padding:5px 10px;cursor:pointer;display:flex;align-items:center;gap:5px;
+  transition:all 0.15s;
+}
+.wc-toggle-btn.on{background:rgba(200,16,46,0.3);border-color:#c8102e;color:#ff9999;}
+.wc-toggle-btn svg{width:14px;height:14px;}
+
+/* calcs pill in header */
+.header-calc{font-size:10px;font-weight:600;color:var(--accent);background:rgba(212,84,26,0.2);border-radius:20px;padding:3px 9px;display:none;}
+
+/* ── SCROLL BODY ── */
+.app-body{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-y:contain;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+
+/* ── FOOTER NAV ── */
+.app-footer{
+  height:var(--footer-h);flex-shrink:0;
+  background:var(--ink);border-top:1px solid rgba(255,255,255,0.08);
+  display:grid;grid-template-columns:repeat(5,1fr);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  position:sticky;bottom:0;z-index:30;
+}
+.nav-tab{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;background:none;border:none;
+  color:rgba(240,236,230,0.35);font-size:9px;font-weight:600;letter-spacing:0.5px;
+  text-transform:uppercase;padding:8px 4px;
+  transition:color 0.15s;min-height:44px;touch-action:manipulation;
+}
+.nav-tab svg{width:20px;height:20px;stroke-width:1.8;}
+.nav-tab.active{color:var(--accent);}
+.nav-tab:active{opacity:0.7;}
+
+/* ── PAGES ── */
+.page{display:none;padding:16px 16px 20px;}
+.page.active{display:block;animation:fadeUp 0.18s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.page-title{font-family:var(--syne);font-size:22px;font-weight:800;letter-spacing:-0.3px;margin-bottom:2px;}
+.page-sub{font-size:12px;color:var(--ink3);margin-bottom:16px;line-height:1.5;}
+
+/* ── WC BANNER (inline) ── */
+.wc-banner-inline{display:none;background:linear-gradient(135deg,#c8102e,#8b0000);border-radius:10px;padding:10px 14px;margin-bottom:14px;}
+.wc-banner-inline.show{display:block;}
+.wc-banner-title{font-family:var(--syne);font-weight:800;font-size:13px;color:#fff;margin-bottom:2px;}
+.wc-banner-sub{font-size:10px;color:rgba(255,255,255,0.65);}
+.wc-fixture{background:rgba(0,0,0,0.2);border-radius:5px;padding:5px 8px;margin-top:6px;display:flex;justify-content:space-between;align-items:center;}
+.wc-fixture.tonight{background:rgba(255,255,255,0.15);}
+.wc-fixture-match{font-size:11px;font-weight:700;color:#fff;}
+.wc-fixture-time{font-size:10px;color:rgba(255,255,255,0.6);}
+
+/* ── CALCS STRIP (top of week page) ── */
+.calcs-strip{
+  display:flex;gap:0;background:var(--surface);
+  border-radius:10px;border:1px solid var(--border);
+  overflow:hidden;margin-bottom:14px;
+}
+.calc-cell{flex:1;padding:8px 6px;text-align:center;border-right:1px solid var(--border);}
+.calc-cell:last-child{border-right:none;}
+.calc-val{font-family:var(--syne);font-size:13px;font-weight:800;}
+.calc-val.c-accent{color:var(--accent);}
+.calc-val.c-green{color:var(--green);}
+.calc-val.c-blue{color:var(--blue);}
+.calc-lbl{font-size:8px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink3);margin-top:1px;}
+
+/* ── CREATINE BANNER ── */
+.creatine-strip{background:rgba(212,84,26,0.1);border:1px solid rgba(212,84,26,0.25);border-radius:8px;padding:8px 12px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.creatine-strip-icon{font-size:14px;}
+.creatine-strip-text{font-size:11px;color:var(--ink2);line-height:1.4;flex:1;}
+.creatine-strip-text strong{color:var(--accent);font-weight:700;}
+
+/* ── WEEK STRIP ── */
+.week-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px;}
+.day-btn{
+  background:var(--surface);border:2px solid var(--border);border-radius:8px;
+  padding:8px 2px;text-align:center;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  min-height:64px;touch-action:manipulation;transition:all 0.12s;
+}
+.day-btn:active{transform:scale(0.95);}
+.day-btn.type-train{border-top:3px solid var(--green);}
+.day-btn.type-rest{border-top:3px solid var(--ink3);}
+.day-btn.type-flex{border-top:3px solid var(--gold);}
+.day-btn.active{border-color:var(--ink);background:var(--ink);color:#f0ece6;}
+.day-btn.active.type-train{border-color:var(--green);background:var(--green);color:#fff;}
+.day-btn.active.type-flex{border-color:var(--gold);background:var(--gold-light);color:var(--ink);}
+.day-abbr{font-size:8px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink3);}
+.day-btn.active .day-abbr{color:rgba(255,255,255,0.7);}
+.day-session{font-family:var(--syne);font-size:14px;font-weight:800;}
+.day-tag{font-size:8px;font-weight:600;color:var(--ink3);text-transform:uppercase;}
+.day-today{font-size:7px;font-weight:800;color:var(--accent);letter-spacing:0.8px;margin-top:1px;}
+
+/* ── DAY CARD ── */
+.day-card{background:var(--surface);border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:4px;}
+.day-card-header{padding:16px 16px 14px;background:var(--ink);color:#f0ece6;}
+.dch-title{font-family:var(--syne);font-size:18px;font-weight:800;letter-spacing:-0.3px;margin-bottom:4px;}
+.dch-desc{font-size:11px;color:rgba(240,236,230,0.55);line-height:1.5;margin-bottom:8px;}
+.dch-badges{display:flex;flex-wrap:wrap;gap:4px;}
+.badge{font-size:9px;font-weight:600;padding:3px 8px;border-radius:20px;}
+.badge-train{background:rgba(45,160,90,0.25);color:#6dffaa;}
+.badge-rest{background:rgba(255,255,255,0.1);color:rgba(240,236,230,0.6);}
+.badge-flex{background:rgba(212,160,26,0.2);color:#ffcc66;}
+.badge-session{background:rgba(212,84,26,0.25);color:#ff9966;}
+.badge-overhead{background:rgba(100,160,255,0.2);color:#99ccff;}
+.badge-today{background:rgba(232,255,71,0.15);color:#e8ff47;}
+.wc-day-note{background:rgba(192,57,43,0.12);border:1px solid rgba(192,57,43,0.3);border-radius:7px;padding:8px 12px;font-size:11px;color:#e88;line-height:1.6;margin-bottom:12px;}
+
+.card-tabs{display:flex;border-bottom:1px solid var(--border);}
+.card-tab{flex:1;padding:11px 8px;text-align:center;font-size:12px;font-weight:700;cursor:pointer;color:var(--ink3);border:none;border-bottom:2px solid transparent;background:none;transition:all 0.15s;font-family:var(--syne);touch-action:manipulation;}
+.card-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.card-panel{display:none;padding:14px 14px;}
+.card-panel.active{display:block;}
+
+/* ── EXERCISES ── */
+.zone-header{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin:14px 0 8px;display:flex;align-items:center;gap:8px;width:100%;}
+.zone-header::after{content:'';flex:1;height:1px;background:var(--border);}
+.zone-header:first-child{margin-top:0;}
+.ex-list{display:flex;flex-direction:column;gap:7px;width:100%;}
+.ex-row{border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--surface);width:100%;}
+.ex-row-head{display:flex;width:100%;align-items:center;gap:0;}
+.ex-toggle-btn{display:flex;flex:1;text-align:left;background:none;border:none;align-items:center;gap:10px;padding:12px 12px;cursor:pointer;transition:background 0.1s;touch-action:manipulation;min-height:52px;}
+.ex-toggle-btn:active{background:var(--surface2);}
+.ex-zone-bar{width:3px;height:34px;border-radius:2px;flex-shrink:0;}
+.zone-heavy{background:var(--accent);}
+.zone-support{background:var(--blue);}
+.zone-core{background:var(--green);}
+.ex-info{flex:1;min-width:0;}
+.ex-name{font-family:var(--syne);font-weight:700;font-size:13px;color:var(--ink);margin-bottom:3px;}
+.ex-tags{display:flex;gap:3px;flex-wrap:wrap;}
+.ex-tag{font-size:8px;padding:2px 6px;border-radius:20px;font-weight:600;}
+.ex-tag-compound{background:var(--accent-light);color:var(--accent);}
+.ex-tag-overhead{background:var(--blue-light);color:var(--blue);}
+.ex-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;padding:10px 12px 10px 0;justify-content:center;}
+.ex-scheme{font-family:var(--syne);font-size:12px;font-weight:700;color:var(--accent);}
+.progress-badge{font-size:8px;font-weight:700;background:var(--green-light);color:var(--green);padding:2px 6px;border-radius:20px;border:1px solid var(--green);}
+.ex-chevron{color:var(--ink3);transition:transform 0.2s;flex-shrink:0;}
+.ex-row.open .ex-chevron{transform:rotate(180deg);}
+.ex-detail-panel{display:none;border-top:1px solid var(--border);background:var(--surface2);}
+.ex-row.open .ex-detail-panel{display:block;}
+.ex-detail-inner{padding:12px 14px 14px 18px;}
+.wt-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;}
+.wt-steps{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+.wt-step{display:flex;gap:8px;font-size:12px;line-height:1.5;}
+.wt-num{font-family:var(--syne);font-weight:700;font-size:10px;color:var(--accent);min-width:16px;margin-top:2px;}
+.wt-text{color:var(--ink2);}
+.ex-cue{background:var(--gold-light);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;padding:8px 11px;font-size:11px;color:var(--gold);margin-bottom:12px;line-height:1.6;}
+
+/* ── SESSION LOGGER ── */
+.session-logger{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;}
+.logger-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);margin-bottom:10px;}
+.set-rows{display:flex;flex-direction:column;gap:7px;margin-bottom:10px;}
+.set-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.set-num{font-family:var(--syne);font-size:11px;font-weight:700;color:var(--ink3);min-width:38px;}
+.set-input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 8px;font-size:16px;font-family:var(--inter);color:var(--ink);outline:none;text-align:center;}
+.set-input:focus{border-color:var(--accent);}
+.set-input.w-input{width:68px;}
+.set-input.r-input{width:58px;}
+.set-unit{font-size:10px;color:var(--ink3);}
+.set-done{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:12px;font-weight:600;color:var(--ink3);cursor:pointer;touch-action:manipulation;white-space:nowrap;min-height:40px;}
+.set-done.logged{background:var(--green-light);border-color:var(--green);color:var(--green);}
+.feel-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.feel-label{font-size:11px;color:var(--ink3);width:100%;margin-bottom:2px;}
+.feel-btn{padding:8px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--surface);font-size:12px;font-weight:600;cursor:pointer;touch-action:manipulation;color:var(--ink3);min-height:40px;}
+.feel-btn.f-new.active{background:#fff0e8;border-color:var(--accent);color:var(--accent);}
+.feel-btn.f-learning.active{background:#fff8e0;border-color:var(--gold);color:var(--gold);}
+.feel-btn.f-comfortable.active{background:var(--green-light);border-color:var(--green);color:var(--green);}
+.feel-btn.f-strong.active{background:var(--blue-light);border-color:var(--blue);color:var(--blue);}
+.save-session-btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;width:100%;font-family:var(--syne);min-height:48px;touch-action:manipulation;}
+.save-session-btn:active{opacity:0.85;}
+.progress-hint-box{background:var(--green-light);border:1px solid var(--green);border-radius:7px;padding:9px 12px;font-size:12px;color:var(--green);margin-top:8px;line-height:1.5;display:none;}
+.progress-hint-box.visible{display:block;}
+.progress-hint-box strong{font-weight:700;}
+
+/* ── MEALS ── */
+.meal-list{display:flex;flex-direction:column;gap:8px;}
+.meal-card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:11px 13px;}
+.meal-header{display:flex;align-items:center;gap:10px;margin-bottom:3px;}
+.meal-time{font-size:10px;font-weight:700;color:var(--ink3);font-family:var(--syne);min-width:42px;}
+.meal-name{font-family:var(--syne);font-weight:700;font-size:13px;flex:1;}
+.meal-kcal{font-family:var(--syne);font-weight:700;font-size:13px;color:var(--accent);}
+.meal-desc{font-size:11px;color:var(--ink2);line-height:1.4;margin-bottom:3px;}
+.meal-prot-badge{font-size:10px;color:var(--green);font-weight:600;}
+.totals-bar{display:flex;border-top:1px solid var(--border);margin-top:12px;border-radius:0 0 9px 9px;overflow:hidden;}
+.total-cell{flex:1;text-align:center;padding:9px 4px;border-right:1px solid var(--border);}
+.total-cell:last-child{border-right:none;}
+.total-num{font-family:var(--syne);font-weight:800;font-size:15px;}
+.total-num.t-k{color:var(--accent);}
+.total-num.t-p{color:var(--green);}
+.total-num.t-c{color:var(--blue);}
+.total-num.t-f{color:var(--gold);}
+.total-lbl{font-size:8px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink3);margin-top:1px;}
+
+/* ── CONFIG ── */
+.config-section{margin-bottom:22px;}
+.config-section-title{font-family:var(--syne);font-size:15px;font-weight:700;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--border);}
+.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.config-card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px 13px;}
+.config-card-label{font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:6px;letter-spacing:0.3px;}
+.config-row{display:flex;align-items:center;gap:7px;}
+.config-input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 8px;font-size:16px;color:var(--ink);font-family:var(--inter);width:100%;outline:none;}
+.config-input:focus{border-color:var(--accent);}
+.config-unit{font-size:11px;color:var(--ink3);white-space:nowrap;}
+.config-slider{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;margin-top:8px;touch-action:pan-x;}
+.config-slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--accent);cursor:pointer;}
+.config-slider::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--accent);cursor:pointer;border:none;}
+.config-slider-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--ink3);margin-top:3px;}
+.stat-display{font-family:var(--syne);font-weight:700;font-size:11px;color:var(--accent);}
+
+/* ── MUSCLE MAP ── */
+.muscle-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.muscle-card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:11px 12px;}
+.muscle-name{font-family:var(--syne);font-weight:700;font-size:12px;margin-bottom:5px;}
+.muscle-bar-track{height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-bottom:4px;}
+.muscle-bar-fill{height:100%;border-radius:3px;background:var(--green);transition:width 0.4s ease;}
+.muscle-bar-fill.m-low{background:var(--accent);}
+.muscle-bar-fill.m-mid{background:var(--gold);}
+.muscle-bar-fill.m-high{background:var(--green);}
+.muscle-score{font-family:var(--syne);font-size:16px;font-weight:800;color:var(--ink);}
+.muscle-score-label{font-size:9px;color:var(--ink3);margin-top:1px;}
+.muscle-exercises{font-size:9px;color:var(--ink3);margin-top:3px;line-height:1.4;}
+
+/* ── SHOPPING ── */
+.shop-category{margin-bottom:20px;}
+.shop-cat-title{font-family:var(--syne);font-weight:700;font-size:14px;margin-bottom:8px;}
+.shop-items{display:flex;flex-direction:column;gap:6px;}
+.shop-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px 13px;display:flex;align-items:center;gap:10px;cursor:pointer;touch-action:manipulation;width:100%;text-align:left;min-height:46px;}
+.shop-item:active{background:var(--surface2);}
+.shop-item.checked{background:var(--green-light);border-color:var(--green);}
+.shop-check{width:18px;height:18px;border:2px solid var(--border2);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.shop-item.checked .shop-check{background:var(--green);border-color:var(--green);color:#fff;font-size:11px;}
+.shop-name{font-size:13px;font-weight:500;flex:1;color:var(--ink);}
+.shop-qty{font-size:11px;color:var(--ink3);}
+
+/* ── COOKOFF ── */
+.cookoff-list{display:flex;flex-direction:column;gap:9px;}
+.cookoff-card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:13px 14px;display:flex;gap:12px;}
+.cookoff-day{font-family:var(--syne);font-weight:800;font-size:12px;color:var(--accent);min-width:34px;padding-top:1px;}
+.cookoff-info-title{font-family:var(--syne);font-weight:700;font-size:13px;margin-bottom:3px;}
+.cookoff-desc{font-size:11px;color:var(--ink2);line-height:1.5;}
+.cookoff-pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.cookoff-pill{font-size:10px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:2px 9px;color:var(--ink3);font-weight:500;}
+
+/* ── PRINCIPLES ── */
+.principles-grid{display:flex;flex-direction:column;gap:10px;}
+.principle-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.pc-icon{font-size:20px;margin-bottom:6px;}
+.pc-title{font-family:var(--syne);font-weight:700;font-size:13px;margin-bottom:4px;}
+.pc-body{font-size:12px;color:var(--ink2);line-height:1.7;}
+
+/* ── DESKTOP override ── */
+@media(min-width:900px){
+  .app{max-width:480px;}
+  .page{padding:20px 20px 24px;}
+  .config-grid{grid-template-columns:1fr 1fr;}
+}
+
+/* ── VERY SMALL screens ── */
+@media(max-width:360px){
+  .day-session{font-size:12px;}
+  .set-row{gap:5px;}
+  .config-grid{grid-template-columns:1fr;}
+}
+
+/* ── WEIGHTED TOGGLE ── */
+.weighted-toggle {
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  min-height: 40px;
+  min-width: 48px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  line-height: 1.2;
+  letter-spacing: 0.3px;
+  border: 2px solid;
+  transition: all 0.15s;
+}
+.weighted-toggle.wt {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.weighted-toggle.bw {
+  background: var(--surface2);
+  color: var(--ink3);
+  border-color: var(--border2);
+  text-decoration: line-through;
+  text-decoration-color: var(--ink3);
+}
+
+
+/* ── INLINE TIMER ── */
+.inline-timer {
+  background: var(--ink);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.timer-display {
+  font-family: var(--syne);
+  font-size: 32px;
+  font-weight: 800;
+  color: #f0ece6;
+  letter-spacing: 2px;
+}
+.timer-display.running { color: var(--accent); }
+.timer-display.done { color: #6dffaa; }
+.timer-start-btn {
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--syne);
+  cursor: pointer;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+.timer-start-btn.running { background: var(--accent); }
+
+/* ── PER SIDE TOGGLE ── */
+.perside-toggle {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--ink3);
+  cursor: pointer;
+  touch-action: manipulation;
+  min-height: 36px;
+}
+.perside-toggle.active {
+  background: var(--blue-light);
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+
+
+
+
+.more-detail-btn {
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: 7px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink3);
+  cursor: pointer;
+  touch-action: manipulation;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 12px;
+  min-height: 40px;
+}
+.more-detail-btn:active { background: var(--surface2); }
+
+
+/* ── DETAIL EXPAND ── */
+.ex-detail-expanded {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--ink2);
+  background: var(--gold-light);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 6px 6px 0;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+.more-detail-btn {
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: 7px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink3);
+  cursor: pointer;
+  touch-action: manipulation;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 10px;
+  min-height: 40px;
+  display: block;
+}
+.more-detail-btn:active { background: var(--surface2); }
+
+
+.logged-badge {
+  font-size: 9px;
+  font-weight: 700;
+  background: var(--green-light);
+  color: var(--green);
+  padding: 2px 6px;
+  border-radius: 20px;
+  border: 1px solid var(--green);
+  white-space: nowrap;
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="app-header-brand">THE<span>.</span>PLAN</div>
+    <div class="app-header-right">
+      <button class="wc-toggle-btn" id="wc-toggle-btn" onclick="toggleWCMode()" aria-pressed="false" aria-label="World Cup mode">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+        WC
+      </button>
+    </div>
+  </header>
+
+  <!-- BODY -->
+  <main class="app-body" id="main-content">
+
+    <div class="page active" id="page-week">
+      <div id="session-timer-bar" style="display:none;background:var(--ink);border-radius:10px;padding:12px 16px;margin-bottom:14px;display:none;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(240,236,230,0.5);">Session in progress</div>
+          <div id="session-timer-display" style="font-family:var(--syne);font-size:22px;font-weight:800;color:#f0ece6;">00:00</div>
+        </div>
+        <button onclick="endSession()" style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:700;font-family:var(--syne);cursor:pointer;min-height:44px;">End session</button>
+      </div>
+      <div id="session-start-wrap" style="margin-bottom:14px;">
+        <button onclick="startSession()" id="start-session-btn" style="width:100%;background:var(--green);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;font-family:var(--syne);cursor:pointer;min-height:52px;">&#x25B6; Start session</button>
+      </div>
+      <div class="wc-banner-inline" id="wc-banner-inline"></div>
+      <div class="calcs-strip">
+        <div class="calc-cell"><div class="calc-val c-accent" id="calc-train">—</div><div class="calc-lbl">Train kcal</div></div>
+        <div class="calc-cell"><div class="calc-val c-accent" id="calc-rest">—</div><div class="calc-lbl">Rest kcal</div></div>
+        <div class="calc-cell"><div class="calc-val c-green" id="calc-prot">—</div><div class="calc-lbl">Protein</div></div>
+        <div class="calc-cell"><div class="calc-val c-blue" id="calc-water-train">—</div><div class="calc-lbl">Fluids</div></div>
+      </div>
+      <div class="creatine-strip">
+        <div class="creatine-strip-icon">💊</div>
+        <div class="creatine-strip-text"><strong>Creatine</strong> — 5g/day in water or food. No loading phase. ~£15 for 3 months.</div>
+      </div>
+      <div class="week-strip" id="week-strip"></div>
+      <div id="day-card-container"></div>
+    </div>
+
+    <div class="page" id="page-food">
+      <div class="page-title">Food</div>
+      <div class="page-sub">Shopping list and batch cook schedule.</div>
+      <div style="display:flex;gap:8px;margin-bottom:18px;">
+        <button onclick="setFoodTab('shop')" id="food-tab-shop" style="flex:1;padding:9px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-family:var(--syne);font-size:12px;font-weight:700;cursor:pointer;min-height:40px;">Shopping</button>
+        <button onclick="setFoodTab('cook')" id="food-tab-cook" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);color:var(--ink3);font-family:var(--syne);font-size:12px;font-weight:700;cursor:pointer;min-height:40px;">Cook-Off</button>
+      </div>
+      <div id="food-shop-content"></div>
+      <div id="food-cook-content" style="display:none;"></div>
+    </div>
+
+    <div class="page" id="page-history">
+      <div class="page-title">History</div>
+      <div class="page-sub">Every session logged. Most recent first.</div>
+      <div id="history-content"></div>
+    </div>
+
+    <div class="page" id="page-config">
+      <div class="page-title">Config</div>
+      <div class="page-sub">Stats, kit, strength map.</div>
+      <div style="display:flex;gap:8px;margin-bottom:20px;">
+        <button onclick="exportData()" style="flex:1;background:var(--green);color:#fff;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;font-family:var(--syne);cursor:pointer;min-height:48px;">&#x2B07; Export backup</button>
+        <button onclick="importData()" style="flex:1;background:var(--surface);color:var(--ink);border:1px solid var(--border2);border-radius:8px;padding:12px;font-size:13px;font-weight:700;font-family:var(--syne);cursor:pointer;min-height:48px;">&#x2B06; Import backup</button>
+      </div>
+      <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="handleImportFile(this)">
+
+      <div class="config-section">
+        <div class="config-section-title">Your stats</div>
+        <div class="config-grid">
+          <div class="config-card" style="grid-column:1/-1;">
+            <div class="config-card-label">Weight <span class="stat-display" id="cfg-weight-disp">15st 0lb / 95.3kg</span></div>
+            <input type="range" class="config-slider" id="cfg-weight-st" min="10" max="25" value="15" oninput="updateStats()" aria-label="Weight in stone">
+            <div class="config-slider-labels"><span>10st</span><span>25st</span></div>
+            <div class="config-row" style="margin-top:8px;gap:6px;">
+              <input class="config-input" type="number" id="cfg-st" value="15" min="10" max="25" placeholder="st" oninput="updateFromInputs()" aria-label="Stone" style="width:60px;">
+              <span class="config-unit">st</span>
+              <input class="config-input" type="number" id="cfg-lb" value="0" min="0" max="13" placeholder="lb" oninput="updateFromInputs()" aria-label="Pounds" style="width:60px;">
+              <span class="config-unit">lb</span>
+              <input class="config-input" type="number" id="cfg-kg" value="95.3" placeholder="kg" oninput="updateFromKg()" aria-label="Kilograms" style="flex:1;">
+              <span class="config-unit">kg</span>
+            </div>
+          </div>
+          <div class="config-card">
+            <div class="config-card-label">Height <span class="stat-display" id="cfg-height-disp">6ft 5 / 196cm</span></div>
+            <input type="range" class="config-slider" id="cfg-height" min="150" max="220" value="196" oninput="updateStats()" aria-label="Height">
+          </div>
+          <div class="config-card">
+            <div class="config-card-label">Body fat % <span class="stat-display" id="cfg-bf-disp">18%</span></div>
+            <input type="range" class="config-slider" id="cfg-bf" min="8" max="35" value="18" oninput="updateStats()" aria-label="Body fat">
+          </div>
+          <div class="config-card">
+            <div class="config-card-label">Sessions/week <span class="stat-display" id="cfg-sessions-disp">5</span></div>
+            <input type="range" class="config-slider" id="cfg-sessions" min="3" max="6" value="5" oninput="updateStats()" aria-label="Sessions">
+          </div>
+          <div class="config-card">
+            <div class="config-card-label">TDEE</div>
+            <div class="calc-val c-accent" id="calc-tdee" style="font-size:15px;">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <div class="config-section-title">Your kit</div>
+        <div id="kit-content"></div>
+      </div>
+
+      <div class="config-section">
+        <div class="config-section-title">Progression</div>
+        <div class="config-grid">
+          <div class="config-card">
+            <div class="config-card-label">DB increment</div>
+            <div class="config-row"><input class="config-input" type="number" id="cfg-db-inc" value="2.5" step="0.5" min="0.5" max="10" aria-label="Dumbbell increment"><span class="config-unit">kg/side</span></div>
+          </div>
+          <div class="config-card">
+            <div class="config-card-label">Barbell increment</div>
+            <div class="config-row"><input class="config-input" type="number" id="cfg-bar-inc" value="2.5" step="1.25" min="1.25" max="10" aria-label="Barbell increment"><span class="config-unit">kg</span></div>
+          </div>
+          <div class="config-card">
+            <div class="config-card-label">KB jump</div>
+            <div class="config-row"><input class="config-input" type="number" id="cfg-kb-jump" value="4" step="2" min="2" max="8" aria-label="KB jump"><span class="config-unit">kg</span></div>
+          </div>
+          <div class="config-card">
+            <div class="config-card-label">Gate (sessions)</div>
+            <div class="config-row"><input class="config-input" type="number" id="cfg-gate" value="2" min="1" max="5" aria-label="Gate"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <div class="config-section-title">Muscle strength map</div>
+        <p style="font-size:11px;color:var(--ink3);margin-bottom:12px;line-height:1.6;">Calculated from logged sets, weights and comfort. Tap an exercise to log.</p>
+        <div class="muscle-grid" id="muscle-map"></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-principles">
+      <div class="page-title">Principles</div>
+      <div class="page-sub">The reasoning behind the plan.</div>
+      <div class="principles-grid" id="principles-content"></div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER NAV -->
+  <footer class="app-footer">
+    <button class="nav-tab active" id="nav-week" onclick="showPage('week')" aria-label="Week plan">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Week
+    </button>
+    <button class="nav-tab" id="nav-food" onclick="showPage('food')" aria-label="Food">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      Food
+    </button>
+    <button class="nav-tab" id="nav-history" onclick="showPage('history')" aria-label="History">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      History
+    </button>
+    <button class="nav-tab" id="nav-config" onclick="showPage('config')" aria-label="Config">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      Config
+    </button>
+    <button class="nav-tab" id="nav-principles" onclick="showPage('principles')" aria-label="Principles">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Info
+    </button>
+  </footer>
+
+</div>
+<div id="week-sub" style="display:none;"></div>
+<div id="calc-water-rest" style="display:none;">
+<!-- End session modal -->
+<div id="session-end-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:flex-end;justify-content:center;">
+  <div style="background:var(--bg);border-radius:16px 16px 0 0;padding:24px 20px 40px;width:100%;max-width:600px;max-height:85vh;overflow-y:auto;">
+    <div style="font-family:var(--syne);font-size:20px;font-weight:800;margin-bottom:4px;">Session complete</div>
+    <div id="modal-duration" style="font-size:13px;color:var(--ink3);margin-bottom:20px;"></div>
+    <div style="font-size:13px;font-weight:600;color:var(--ink2);margin-bottom:10px;">How did the session feel overall?</div>
+    <div style="display:flex;gap:8px;margin-bottom:20px;">
+      <button class="modal-feel-btn" data-feel="Easy" onclick="selectSessionFeel(this)" style="flex:1;padding:12px 8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--syne);min-height:48px;">Easy</button>
+      <button class="modal-feel-btn" data-feel="Hard" onclick="selectSessionFeel(this)" style="flex:1;padding:12px 8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--syne);min-height:48px;">Hard</button>
+      <button class="modal-feel-btn" data-feel="Failure" onclick="selectSessionFeel(this)" style="flex:1;padding:12px 8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--syne);min-height:48px;">Failure</button>
+    </div>
+    <div id="session-summary-box" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px;">
+      <div id="session-summary-text" style="font-size:13px;color:var(--ink2);line-height:1.7;"></div>
+      <div id="session-muscles-text" style="font-size:12px;color:var(--ink3);margin-top:10px;line-height:1.6;border-top:1px solid var(--border);padding-top:10px;"></div>
+      <div id="session-soreness-text" style="font-size:12px;color:var(--gold);margin-top:6px;line-height:1.6;"></div>
+    </div>
+    <button onclick="closeSessionModal()" id="modal-close-btn" style="display:none;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;font-family:var(--syne);cursor:pointer;min-height:52px;">Done</button>
+  </div>
+</div>
+
+    <div class="form-modal-scheme" id="form-modal-scheme"></div>
+    <div id="form-modal-steps"></div>
+    <div class="form-modal-cue" id="form-modal-cue"></div>
+    <div id="form-modal-detail-header" style="display:none;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(240,236,230,0.4);margin-top:20px;margin-bottom:10px;">Deeper coaching notes</div>
+    <div id="form-modal-detail" style="display:none;font-size:13px;color:rgba(240,236,230,0.75);line-height:1.8;"></div>
+  </div>
+</div>
+</div>
+<div id="sr-announcer" role="status" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"></div>
+
+<script>
+
+
+
+const TIMED_EXERCISES = {
+  'plank': 45, 'wall-sit': 45, 'hollow-body': 30,
+  'copenhagen-plank': 20, 'kb-swing-hiit': 20,
+  'dead-bug': null, 'tibialis-raise': null, 'kb-tibialis-raise-kb': null
+};
+
+const BODYWEIGHT_EXERCISES = new Set([
+  'plank','dead-bug','hollow-body','wall-sit','bird-dog','rev-crunch',
+  'copenhagen-plank','tibialis-raise','kb-tibialis-raise-kb',
+  'push-up','push-up-narrow','push-up-shoulder',
+  'kb-halo','kb-swing-hiit','kb-side-swing','windmill','pallof-press'
+]);
+
+const SESSION_SUMMARIES = {
+  A: {
+    muscles: 'Chest, shoulders, triceps, upper back and lats. Goblet squat and RDL gave your quads and hamstrings a supporting role.',
+    soreness: 'Expect chest and upper back tomorrow. Triceps from the Tate press may surprise you on day two.',
+    Easy: 'Solid session. Everything moved well and the body held up. Session A is your bread and butter — consistency here builds the foundation.',
+    Hard: 'Good work. Upper body compound work is demanding and you pushed through it. The chest and back will adapt quickly with this stimulus.',
+    Failure: 'Gutted it out. Some sessions feel like that — the important thing is you showed up and completed it. Note what was hardest and we adjust.'
+  },
+  B: {
+    muscles: 'Hamstrings, glutes and adductors took the bulk of the load. Quads through the squat work. Lower back stabilising throughout the hinge patterns.',
+    soreness: 'Hamstrings and glutes tomorrow, possibly into day two. Adductors from the lateral lunge may catch you off guard — that is normal early on.',
+    Easy: 'Lower body session done. The hinge patterns will feel more natural each time. Good session.',
+    Hard: 'Lower body work is brutal and honest — there is nowhere to hide on an RDL or a Bulgarian split squat. Well done.',
+    Failure: 'Lower body sessions are the hardest in the plan. If it broke you today it will make you stronger next week. Rest up tonight.'
+  },
+  C: {
+    muscles: 'Everything. Full send means full body — posterior chain, pushing muscles, core, cardiovascular system all took a hit.',
+    soreness: 'Widespread tomorrow. The thrusters and renegade rows tend to linger. If your core is sore that is a good sign.',
+    Easy: 'Full send and you made it look easy. Either the weights need reviewing upward or you had a great day. Either way, good session.',
+    Hard: 'That is what Session C is supposed to feel like. Total body effort, nothing left. Recover well tonight.',
+    Failure: 'Session C is the most demanding in the rotation. Completing it on a hard day is a genuine achievement.'
+  },
+  D: {
+    muscles: 'Arms, shoulders, upper and lower back, quads, adductors, core and cardiovascular system. The KB session hits everything through different planes of motion.',
+    soreness: 'Arms tomorrow — biceps and triceps from the curl-extension. Shoulders from the press and halo. Possibly lower back from the cross-body cleans.',
+    Easy: 'KB session felt easy — consider moving up a bell size on the pressing and rowing movements next time.',
+    Hard: 'KB sessions are deceptively full-body. Everything worked today. The HIIT finisher is supposed to hurt.',
+    Failure: 'The KB session is a long one. Getting through it on a hard day is solid. The cardio finisher at the end is ruthless.'
+  }
+};
+
+// ─── GLOBAL STATE ───────────────────────────────────────────
+let stats = { weightKg: 95.3, heightCm: 196, bf: 18, sessions: 5 };
+let wcMode = false;
+let activeDay = 0;
+let openExercise = null;
+let openDetail = null;
+let activeCardTab = 'workout-panel';
+
+// ─── MUSCLE GROUP MAP ────────────────────────────────────────
+const MUSCLE_MAP = {
+  'Chest':       ['floor-press','incline-press','push-up','push-up-narrow','push-up-shoulder','tate-press'],
+  'Shoulders':   ['seated-ohp','lateral-raise','kb-clean-press','push-up-shoulder','kb-halo','kb-press-seated'],
+  'Triceps':     ['tate-press','push-up-narrow','tricep-kickback','floor-press','thruster','kb-curl-extension'],
+  'Biceps':      ['hammer-curl','incline-db-curl','kb-curl-extension'],
+  'Back':        ['barbell-row','rdl','renegade-row','kb-clean-press','single-leg-rdl','kb-cross-body-clean','kb-single-arm-row-kb'],
+  'Core':        ['dead-bug','plank','pallof-press','hollow-body','copenhagen-plank','suitcase-carry','rev-crunch','bird-dog','windmill','kb-woodcutter','kb-tibialis-raise-kb'],
+  'Glutes':      ['rdl','kb-swing','bulgarian','single-leg-rdl','sumo-squat'],
+  'Quads':       ['goblet-squat','bulgarian','wall-sit','lateral-lunge','thruster'],
+  'Hamstrings':  ['rdl','kb-swing','single-leg-rdl'],
+  'Adductors':   ['lateral-lunge','sumo-squat','copenhagen-plank'],
+  'Tibialis':    ['tibialis-raise'],
+  'Full Body':   ['deadlift','kb-clean-press','renegade-row','db-thruster']
+};
+
+// PRU normalisation anchors — (realistic floor, ceiling) for scoring 1-10
+const PRU_ANCHORS = {
+  'Chest':600,'Shoulders':400,'Triceps':360,'Biceps':288,
+  'Back':600,'Core':135,'Glutes':800,'Quads':320,
+  'Hamstrings':800,'Adductors':200,'Tibialis':45,'Full Body':500
+};
+
+// ─── STORAGE HELPERS ─────────────────────────────────────────
+function getSessionLogs() {
+  try { return JSON.parse(localStorage.getItem('plan-session-logs') || '{}'); } catch(e) { return {}; }
+}
+function saveSessionLogs(d) { localStorage.setItem('plan-session-logs', JSON.stringify(d)); }
+function getKit() {
+  try { return JSON.parse(localStorage.getItem('plan-kit') || '{}'); } catch(e) { return {}; }
+}
+function saveKit(k) { localStorage.setItem('plan-kit', JSON.stringify(k)); }
+function getShopChecked() {
+  try { return JSON.parse(localStorage.getItem('plan-shopping') || '{}'); } catch(e) { return {}; }
+}
+function saveShopChecked(d) { localStorage.setItem('plan-shopping', JSON.stringify(d)); }
+
+// ─── PRU ENGINE ──────────────────────────────────────────────
+function calcPRU(exId) {
+  const logs = getSessionLogs();
+  const ex = logs[exId];
+  if (!ex || !ex.sets || !ex.sets.length) return 0;
+  const validSets = ex.sets.filter(s => s.weight > 0 && s.reps > 0 && s.logged);
+  if (!validSets.length) return 0;
+  const setCount = validSets.length;
+  const setMult = setCount <= 3 ? 1.0 : setCount === 4 ? 1.15 : 1.3;
+  const feelMap = { 'New': 0.6, 'Learning': 0.8, 'Comfortable': 1.0, 'Strong': 1.2 };
+  const feelFactor = feelMap[ex.feel] || 0.8;
+  const avgWeight = validSets.reduce((a,s) => a + s.weight, 0) / validSets.length;
+  const avgReps = validSets.reduce((a,s) => a + s.reps, 0) / validSets.length;
+  return Math.round(avgWeight * avgReps * setMult * feelFactor);
+}
+
+function calcMuscleScore(muscleName) {
+  const exIds = MUSCLE_MAP[muscleName] || [];
+  const prus = exIds.map(calcPRU).filter(p => p > 0);
+  if (!prus.length) return 0;
+  const avgPRU = prus.reduce((a,b) => a+b, 0) / prus.length;
+  const anchor = PRU_ANCHORS[muscleName] || 50;
+  return Math.min(10, Math.round((avgPRU / anchor) * 10 * 10) / 10);
+}
+
+// ─── PROGRESSION GATE ────────────────────────────────────────
+function checkProgressionGate(exId) {
+  const logs = getSessionLogs();
+  const ex = logs[exId];
+  if (!ex || !ex.feel || !ex.sets) return null;
+  const validSets = ex.sets.filter(s => s.weight > 0 && s.reps > 0 && s.logged);
+  if (!validSets.length) return null;
+  const feel = ex.feel;
+  const gate = parseInt(document.getElementById('cfg-gate')?.value || '2');
+  const sessionsAtWeight = ex.sessionsAtWeight || 0;
+  const comfortGate = (feel === 'Strong') ? gate : gate + 2;
+  if (sessionsAtWeight < comfortGate) return null;
+
+  const avgWeight = validSets.reduce((a,s) => a+s.weight,0) / validSets.length;
+  const dbInc = parseFloat(document.getElementById('cfg-db-inc')?.value || '2.5');
+  const barInc = parseFloat(document.getElementById('cfg-bar-inc')?.value || '2.5');
+  const kbJump = parseFloat(document.getElementById('cfg-kb-jump')?.value || '4');
+
+  const EXERCISES_REF = EXERCISES;
+  const exData = EXERCISES_REF[exId];
+  if (!exData) return null;
+
+  let inc = dbInc;
+  const equip = (exData.equip || '').toLowerCase();
+  if (equip.includes('barbell')) inc = barInc;
+  if (equip.includes('kettlebell') || equip.includes('kb')) inc = kbJump;
+
+  const kitNext = findNextKitWeight(avgWeight, exId);
+  const nextW = kitNext ? kitNext.weight : avgWeight + inc;
+  const kitMsg = kitNext ? kitNext.msg : 'Try ' + (avgWeight + inc) + 'kg.';
+  const isBW = BODYWEIGHT_EXERCISES.has(exId);
+  if (feel === 'New') return { type: 'form', msg: 'Focus on form — nail it for ' + comfortGate + ' sessions before adding load.' };
+  if (feel === 'Learning') return { type: 'sets', msg: 'Add a set first. Once you are hitting all sets cleanly, ' + kitMsg };
+  if (feel === 'Comfortable') return { type: 'sets', newWeight: isBW ? null : nextW, msg: isBW ? 'Add a set or increase hold time.' : 'Add a set, or try ' + kitMsg };
+  if (feel === 'Strong') return { type: 'weight', newWeight: isBW ? null : nextW, msg: isBW ? 'Add a set or increase intensity.' : 'Ready to move up. ' + kitMsg };
+  return null;
+}
+
+function acceptProgression(exId) {
+  const logs = getSessionLogs();
+  if (!logs[exId]) return;
+  const gate = checkProgressionGate(exId);
+  if (!gate || !gate.newWeight) return;
+  logs[exId].sets = logs[exId].sets.map(s => ({ ...s, weight: gate.newWeight, logged: false }));
+  logs[exId].feel = 'Learning';
+  logs[exId].sessionsAtWeight = 0;
+  saveSessionLogs(logs);
+  renderDayDetail(activeDay);
+}
+
+
+// ─── CALCS ───────────────────────────────────────────────────
+function calcTDEE(kg, cm, bf, sessions) {
+  const lbm = kg * (1 - bf / 100);
+  const bmr = 370 + (21.6 * lbm);
+  const actMap = { 3: 1.45, 4: 1.5, 5: 1.55, 6: 1.6 };
+  return Math.round(bmr * (actMap[sessions] || 1.55));
+}
+
+function calcTargets() {
+  const tdee = calcTDEE(stats.weightKg, stats.heightCm, stats.bf, stats.sessions);
+  const protein = Math.round(stats.weightKg * 2.0);
+  const waterTrain = ((stats.weightKg * 35) + 500) / 1000;
+  const waterRest = (stats.weightKg * 35) / 1000;
+  return { tdee, trainKcal: Math.round(tdee * 1.08), restKcal: Math.round(tdee * 0.92), protein, waterTrain, waterRest };
+}
+
+function kgToStLb(kg) {
+  const totalLb = kg * 2.20462;
+  return { st: Math.floor(totalLb / 14), lb: Math.round(totalLb % 14) };
+}
+function stLbToKg(st, lb) { return Math.round(((st * 14 + lb) / 2.20462) * 10) / 10; }
+function cmToFtIn(cm) { const i = cm / 2.54; return { ft: Math.floor(i / 12), inch: Math.round(i % 12) }; }
+
+
+// ─── DATA ────────────────────────────────────────────────────
+const EXERCISES = {
+  'floor-press': {
+    name: 'Floor Press', zone: 'heavy', compound: true, overhead: false,
+    scheme: '3×10', rest: '2–3 min',
+    steps: [
+      'Lie flat on the floor, barbell above chest. Grip slightly wider than shoulder-width.',
+      'Plant feet flat, engage your core and squeeze your glutes throughout.',
+      'Lower the bar slowly until your upper arms touch the floor — pause briefly.',
+      'Drive the bar back up explosively, locking out at the top.',
+      'The floor limits range of motion — this is deliberate and joint-friendly.'
+    ],
+    cue: 'Imagine pushing the floor away from you, not pressing the bar up. Arch your upper back slightly to create a stable base.',
+    detail: "Common faults: bouncing the bar off the chest, losing lat tightness at the bottom, elbows flaring too wide. The floor limits range of motion which is actually useful early on — you cannot go below parallel so the shoulder is protected. Lats into the floor before you unrack. As you lower, the elbows should track at about 45 degrees from your torso — not tucked tight, not flared to 90. Pause briefly at the floor each rep to eliminate the stretch reflex. At your height, a shoulder-width grip is likely right — wider increases pec recruitment but at the cost of shoulder health over time. The bar path should arc very slightly toward your face on the way up, not straight up."
+  },
+  'barbell-row': {
+    name: 'Barbell Row', zone: 'heavy', compound: true, overhead: false,
+    scheme: '3×10', rest: '2 min',
+    steps: [
+      'Hinge at hips to roughly 45°, soft knees, bar hanging at mid-shin level.',
+      'Grip just outside your legs, overhand or underhand.',
+      'Drive elbows back and up — lead with your elbows, not your hands.',
+      'Pull until bar touches lower chest/upper stomach. Hold 1 second.',
+      'Lower with control — resist the urge to drop it.'
+    ],
+    cue: 'Think "elbows to ceiling" not "hands to chest". At your height, keep the hinge consistent or you\'ll turn it into a deadlift.',
+    detail: "Common faults: using momentum by jerking the torso upright, pulling with the arms rather than retracting the shoulder blades, not reaching full range at the bottom. Hinge to roughly 45 degrees — not quite parallel but not upright. The bar should hang directly below the shoulder at the bottom. Drive the elbows back and up, not just up. At the top, the bar should touch your lower chest or upper abdomen — if it is hitting your stomach you are not retracting enough. Hold for one second at the top. Lower under control — the eccentric is doing as much work as the concentric. Your grip will fatigue before your back — that is normal and tells you the back is working."
+  },
+  'seated-ohp': {
+    name: 'Overhead Press (Seated)', zone: 'heavy', compound: true, overhead: true,
+    scheme: '4×6', rest: '2 min',
+    steps: [
+      'Sit on the bench, back upright or slightly reclined. No ceiling clearance needed seated.',
+      'Hold dumbbells at shoulder height, palms facing forward.',
+      'Press directly overhead — don\'t flare elbows excessively.',
+      'Lock out at top, squeeze the shoulders hard for a beat.',
+      'Lower under control back to shoulder height.'
+    ],
+    cue: '⚠ Cellar overhead — always press seated or kneeling. Never standing. Keep the rep strict — no leg drive when seated.',
+    detail: "The seated position removes any leg drive so this is a pure shoulder strength test. Common faults: excessive forward lean, losing the bar path behind the head, wrists breaking back. Set up with elbows slightly forward of the bar — not directly under it. Press in a straight vertical line, not forward. The natural finishing position has the bar directly above your ears, not in front of your face. Brace your core as hard as you would on a deadlift — a loose core on overhead pressing is how lower back issues start. At your height the seated position means you probably need the bench fairly upright — close to 90 degrees. If your lower back is arching excessively, drop the weight."
+  },
+  'goblet-squat': {
+    name: 'KB Goblet Squat', zone: 'support', compound: true, overhead: false,
+    scheme: '3×10', rest: '90s',
+    steps: [
+      'Hold kettlebell at chest height by the horns, elbows pointing down.',
+      'Feet shoulder-width or slightly wider, toes turned out 15–30°.',
+      'Sit between your knees, keeping the chest tall — the KB acts as a counterbalance.',
+      'Drive through the full foot on the way up — don\'t rise onto toes.',
+      'Pause briefly at the bottom each rep to reinforce depth.'
+    ],
+    cue: 'At 6\'5" your femurs are long — you\'ll need a wider stance and more forward lean than most. That\'s correct for your anatomy, not a mistake.',
+    detail: "The counterweight at the front is what makes the goblet squat accessible for tall people — it lets you stay more upright in the torso while still hitting full depth. Common fault: not hitting full depth because the stance is too narrow. At your height and femur length you need a wider stance than most coaching diagrams show — feet roughly shoulder-width, toes out 30 to 45 degrees. The cue at the bottom: push your knees out with your elbows if you bring the KB to chest. This opens the hips and allows you to sit between your legs rather than on top of them. Chest stays up throughout. The 2-second pause at the bottom eliminates the bounce reflex and forces the quads and glutes to do real work on the way up."
+  },
+  'rdl': {
+    name: 'Romanian Deadlift', zone: 'heavy', compound: true, overhead: false,
+    scheme: '4×8', rest: '2–3 min',
+    steps: [
+      'Stand with bar or DBs at hip height. Slight bend in knees, not a stiff-leg deadlift.',
+      'Hinge at the hips, pushing them back. Let the bar slide down your thighs.',
+      'Lower until you feel a strong hamstring stretch — for most this is mid-shin.',
+      'Drive hips forward aggressively to return to standing.',
+      'Squeeze glutes hard at the top — think hip extension, not just standing up.'
+    ],
+    cue: 'The RDL is a hip hinge, not a back exercise. If your lower back is doing all the work, your hamstrings aren\'t engaged enough. Push hips back further.',
+    detail: "The single most important technical lift in your plan and the one most people get wrong. The cue that fixes 90% of RDL problems: stand close to a wall and try to tap it with your backside as you hinge. This forces the hips back rather than letting the back round forward. The bar or weight should drag down your legs — it should almost touch the shin throughout. At the bottom, feel the stretch in the hamstrings — if you feel it in your lower back you have gone too far or your hips have stopped moving back. The spine should be neutral, not perfectly upright and not rounded — a flat back position. Look at a spot about 2 metres in front of you on the floor, not up, not down. At your height, expect the bar to reach around mid-shin before the hamstring stretch stops you. That is your range — honour it."
+  },
+  'lateral-raise': {
+    name: 'Lateral Raise', zone: 'support', compound: false, overhead: false,
+    scheme: '3×12', rest: '60s',
+    steps: [
+      'Stand or sit. Hold DBs at sides, slight bend in elbows.',
+      'Raise arms out to the side, leading with the elbow — not the wrist.',
+      'Tilt thumbs slightly down (like pouring a jug) to better engage the side delt.',
+      'Stop at shoulder height — no higher needed.',
+      'Lower slowly — the negative is half the work.'
+    ],
+    cue: 'Raise in the scapular plane — about 30 degrees forward of dead lateral, not straight out to the side. This is the natural arc of the shoulder joint, reduces impingement risk and loads the medial delt better. Thumbs slightly down or neutral at the top. No momentum — if you are swinging, the weight is too heavy. At 7.5kg each side with strict form, Learning is exactly right.',
+    detail: "One of the most butchered exercises in any gym. Common faults: swinging the weight up with momentum, raising directly to the side rather than in the scapular plane, shrugging the traps as the weight rises, going too heavy. The scapular plane is about 30 degrees forward of dead lateral — your arms naturally hang there, so raise from there. Think about leading with your elbows, not your hands. At the top position, your pinkies should be slightly higher than your thumbs — not dramatically, just neutral or very slightly. Stop at shoulder height. Going higher above shoulder recruits the trap, not the delt. If you find yourself leaning to one side or hitching up at the top, the weight is too heavy. These should be controlled — 2 seconds up, 2 seconds down minimum."
+  },
+  'dead-bug': {
+    name: 'Dead Bug', zone: 'core', compound: false, overhead: false,
+    scheme: '3×10 each side', rest: '60s',
+    steps: [
+      'Lie on your back, arms pointing to ceiling, knees bent at 90° in the air.',
+      'Press your lower back into the floor — maintain this throughout.',
+      'Slowly lower your right arm and left leg toward the floor simultaneously.',
+      'Stop just before your lower back lifts. Return and repeat other side.',
+      'Breathe out as you lower. The movement should be slow and deliberate.'
+    ],
+    cue: 'This is an anti-extension core exercise — exactly what you need for gut reduction. The spine should not move at all. If it does, the range is too big.',
+    detail: "The most underestimated core exercise in the plan. What makes it work is also what makes it easy to cheat: the lower back must remain pressed flat to the floor for the entire movement. Press your lower back into the floor before you start — actively, like you are trying to flatten your lumbar spine. Then brace your core by taking a breath and pushing your belly button out against that braced position. Now extend the opposite arm and leg simultaneously. The leg should lower to just above the floor — not touching it. If your lower back lifts at any point, you have gone past your current capability. Reduce range. Move at half the speed you think you should. 10 reps per side at full control is far harder than 20 reps with a bouncing lower back."
+  },
+  'plank': {
+    name: 'Plank', zone: 'core', compound: false, overhead: false,
+    scheme: '3×45s', rest: '60s',
+    steps: [
+      'Forearms on floor, elbows under shoulders. Feet hip-width.',
+      'Posterior pelvic tilt — think "tuck your tail". This eliminates the arch that makes planks easier.',
+      'Squeeze glutes and quads. Brace your core as if absorbing a punch.',
+      'Breathe normally. If you\'re holding your breath, you\'re bracing too hard.',
+      'Keep hips level — don\'t let them sag or pike.'
+    ],
+    cue: 'Most people plank too easily because they forget the posterior pelvic tilt. Do it right and 45 seconds is genuinely hard.',
+    detail: "The most common plank fault is the hips rising into a pike. You want a straight line from heel to head — if your hips are high the core is not working properly. Posterior pelvic tilt is the cue: tuck your tailbone toward your belly button before you start. Then squeeze your glutes and quads hard. The plank should feel like your entire body is a fist. Breathing: do not hold your breath. Exhale fully every few seconds and re-brace. At 45 seconds you should be shaking — that is the right stimulus. If it feels easy, your hips are probably high or you are not squeezing. Elevating your feet, adding a plate on the back, or shifting to a deficit plank are all progressions."
+  },
+  'kb-swing': {
+    name: 'KB Swing', zone: 'heavy', compound: true, overhead: false,
+    scheme: '3×15', rest: '60s',
+    steps: [
+      'Hinge back, let the KB swing between your legs (not a squat — hinge).',
+      'Snap your hips forward explosively. The bell floats up from hip power, not arm strength.',
+      'At the top, you should be standing tall — hips fully extended, glutes squeezed.',
+      'Let the bell fall back, hinge immediately as it passes through.',
+      'Keep your lats engaged throughout — "protect your armpits".'
+    ],
+    cue: 'If the bell goes above shoulder height, you\'re using too much arm. If your back rounds, the weight\'s too heavy or the hinge is wrong. The bell should feel weightless at the top.',
+    detail: "Not a squat, not a deadlift — a ballistic hip hinge. Common faults: squatting the bell down instead of hinging, letting the bell drift too far forward at the top, using the arms to pull the bell up. Hike the bell back between the legs aggressively — it should go high between your thighs. Then snap the hips forward explosively. The bell floats — you are not lifting it with your arms. At the top, your body should be a straight plank from heel to head — hips locked out, glutes squeezed, core braced. The bell goes no higher than shoulder height on a standard swing. On the way down, hinge back into it — do not squat. The bell guides your hips back. At your height a slight forward lean at the top is normal — your long torso changes the geometry."
+  },
+  'bulgarian': {
+    name: 'Bulgarian Split Squat', zone: 'heavy', compound: true, overhead: false,
+    scheme: '3×8 each', rest: '90s each',
+    steps: [
+      'Rear foot on bench, front foot far enough forward that your shin stays vertical when you lower.',
+      'Hold dumbbells at sides or goblet-style at chest.',
+      'Lower your rear knee toward the floor — control the descent.',
+      'Keep the torso upright. At your height, lean forward slightly to keep balance.',
+      'Drive through the front heel to return. Don\'t let the knee cave in.'
+    ],
+    cue: 'The hardest exercise in this plan. Start lighter than you think. The balance alone will fatigue your stabilisers. Long legs = longer lever = harder than it looks.',
+    detail: "One of the hardest single-leg exercises. Common faults: the front foot too close to the bench causing forward knee travel, the torso pitching forward, letting the back knee bang the floor. Front foot distance: stand in front of a bench and step back — the front foot should be far enough forward that the shin is roughly vertical at the bottom. The back foot is just a balance point, not a weight bearer. Vertical torso throughout — if you are leaning forward you are recruiting more hip flexor than glute. Lower slowly — 3 to 4 seconds down. At the bottom, the back knee should hover just above the floor. Drive up through the heel of the front foot. Expect one side to be noticeably harder — that asymmetry is the whole point."
+  },
+  'suitcase-carry': {
+    name: 'Suitcase Carry', zone: 'core', compound: false, overhead: false,
+    scheme: '3×30m each', rest: '60s',
+    steps: [
+      'Pick up a heavy KB in one hand. Stand tall.',
+      'Walk 30 metres without leaning to either side.',
+      'Your obliques on the opposite side are working hard to keep you upright.',
+      'Keep the shoulder slightly packed — not shrugged up, not drooping.',
+      'Switch hands and repeat the other direction.'
+    ],
+    cue: 'This is an anti-lateral flexion exercise — directly trains the muscles that protect your spine under load. At your height, a strong lateral core is essential.'
+  },
+  'rev-crunch': {
+    name: 'Reverse Crunch', zone: 'core', compound: false, overhead: false,
+    scheme: '3×15', rest: '60s',
+    steps: [
+      'Lie flat. Legs in the air, knees slightly bent.',
+      'Curl your pelvis toward your chest — not your head toward your knees.',
+      'The movement is small and deliberate. You should feel it in the lower abs.',
+      'Lower with control — don\'t let your legs swing down.',
+      'If you feel it in your hip flexors more than your abs, reduce the range.'
+    ],
+    cue: 'This is lower ab work — directly targets the gut area. Much more effective than crunches for the muscle you\'ll actually see. Keep the movement slow and intentional.'
+  },
+  'deadlift': {
+    name: 'Barbell Deadlift', zone: 'heavy', compound: true, overhead: false,
+    scheme: '3×5', rest: '3 min',
+    steps: [
+      'Bar over mid-foot. Hinge down and grip just outside your legs.',
+      'Hips set — not squatting, not standing. Chest up, lats engaged.',
+      'Take the slack out of the bar before pulling — you\'ll hear a click.',
+      'Push the floor away as you drive your hips forward simultaneously.',
+      'Stand tall at the top, hips through. Lower by hinging — don\'t just drop it.'
+    ],
+    cue: 'At 6\'5" pulling from the floor with long femurs is a significant technical challenge. The hinge must be deliberate. Video yourself from the side to check the bar path.',
+    detail: "The most technically demanding lift in the plan. Setup is everything: bar over mid-foot, hip-width stance, hinge down and grip just outside the legs. Before you pull, create tension: lats down and back as if protecting your armpits, chest tall, take a big breath into the belly and brace hard. The first pull is legs — drive the floor away from you, do not yank with the back. The bar should travel in a straight vertical line — if it swings away from you, your hips came up too fast. Lock out at the top by driving the hips forward and squeezing the glutes — do not hyperextend the lower back. On the descent: hinge at the hips first, then bend the knees once the bar passes them. At your height the conventional deadlift requires significant forward torso lean — this is correct for your proportions, not a fault."
+  },
+  'thruster': {
+    name: 'DB Thruster', zone: 'heavy', compound: true, overhead: true,
+    scheme: '3×8', rest: '90s',
+    steps: [
+      'Hold DBs at shoulder height. Feet shoulder-width, squat stance.',
+      'Squat down to parallel, keeping chest up.',
+      'As you drive up from the squat, use the momentum to press the DBs overhead.',
+      'Lock out at the top — this is one fluid movement, not two separate exercises.',
+      'Lower DBs to shoulders as you descend into the next squat.'
+    ],
+    cue: '⚠ Cellar overhead — keep this seated or sub with a goblet squat + separate seated press if ceiling is too low. The overhead portion should feel like an extension of the leg drive, not a separate press.',
+    detail: "A squat and press in one fluid movement — the transition between them is where most people stall. Common fault: pausing at the top of the squat and then pressing separately. The drive out of the squat should provide momentum into the press — use the leg drive. Timing: as you pass parallel on the way up, the arms start pressing. By the time you are standing, the bar should already be at forehead height. At full extension everything locks out together — legs, hips, arms. At your height the press will naturally come from a higher start position which is an advantage on this lift. Keep the bar close to the face on the press — not in front of it."
+  },
+  'renegade-row': {
+    name: 'Renegade Row', zone: 'support', compound: true, overhead: false,
+    scheme: '3×6 each', rest: '90s',
+    steps: [
+      'Start in a plank position with hands on DBs, shoulder-width apart.',
+      'Brace hard — core, glutes, everything engaged.',
+      'Row one DB to your hip, keeping your hips square to the floor.',
+      'Lower it, then row the other side.',
+      'If hips are rotating significantly, use a lighter weight or widen your feet.'
+    ],
+    cue: 'The point of this exercise is the anti-rotation core demand, not the row itself. If you\'re wobbling, go lighter. A perfect renegade row with 8kg is worth more than a sloppy one with 15kg.',
+    detail: "A row and an anti-rotation plank simultaneously. Common faults: the hips rotating when you row, the supporting wrist collapsing, rowing too heavy and losing plank position. Start lighter than you think. Set up in a plank position on the dumbbells, feet slightly wider than hip-width — this is your base. Before rowing, brace the core so hard that the hips cannot move. Row one arm — the elbow goes straight back, not flared out. The hips must not rotate. If they do, either the feet are too narrow or the weight is too heavy. At your height the range of motion on this row is large — use it."
+  },
+  'push-up': {
+    name: 'Push-Up Board — Wide (Chest)', zone: 'support', compound: true, overhead: false,
+    scheme: '3×12', rest: '60s',
+    steps: [
+      'Set handles to the wide outer position (usually marked yellow or chest). This is your starting point.',
+      'Hands wider than shoulders, fingers pointing outward. Body in a rigid straight line head to heels.',
+      'Lower your chest toward the board. Elbows flare at roughly 45–70° — not straight out, not tucked.',
+      'At the bottom, chest should nearly touch the board. Pause briefly.',
+      'Press up and slightly inward. At the top push the handles apart to fully engage the chest.'
+    ],
+    cue: "The wide position hammers the outer chest. At 6'5\" your long arms give you a big range of motion — use it. Lower slowly (3 seconds down) and press explosively. If you can do more than 15 clean reps, elevate your feet on the bench.",
+    detail: "The most accessible exercise and one of the most commonly done wrong. Common faults: sagging hips, elbows flaring to 90 degrees, not reaching full depth, looking up. Body should be a straight plank — same cues as the plank exercise. Elbows at roughly 45 degrees from the torso — not tucked, not flared. Full depth means chest to floor or near it. Full extension at the top without locking out aggressively. At your height and arm length, your push-up range of motion is significantly larger than most people — that is an advantage for muscle development, use it. Slow the negative to 3 seconds. If standard push-ups are too easy, elevate the feet or wear a weight vest."
+  },
+  'push-up-narrow': {
+    name: 'Push-Up Board — Narrow (Triceps)', zone: 'support', compound: true, overhead: false,
+    scheme: '3×10', rest: '60s',
+    steps: [
+      'Set handles to the narrow inner position (usually marked red or tricep). Handles close together.',
+      'Elbows stay tucked close to your sides throughout — this is the key difference from wide.',
+      'Lower under control, keeping elbows pointing straight back, not flaring.',
+      'Drive up through the triceps — feel the back of the arm doing the work.',
+      'Lock out fully at the top and squeeze the triceps.'
+    ],
+    cue: "Narrow grip push-ups are a serious tricep exercise. At your build, strong triceps matter — they're 2/3 of your upper arm. The board angle usually solves wrist discomfort compared to flat floor narrow push-ups."
+  },
+  'push-up-shoulder': {
+    name: 'Push-Up Board — Shoulder Position', zone: 'support', compound: true, overhead: false,
+    scheme: '3×10', rest: '60s',
+    steps: [
+      'Set handles to the shoulder position (usually marked blue, handles angled outward at ~45°).',
+      'Hands at shoulder width, fingers pointing slightly outward.',
+      'As you lower, focus on feeling the front shoulder (anterior delt) loading.',
+      'Keep the core braced hard — long levers at your height mean the core works overtime.',
+      'Drive up thinking about pushing the floor away through the shoulders.'
+    ],
+    cue: "Bridges chest and shoulder work. Useful on Session A as a no-overhead shoulder accessory — no ceiling clearance needed, no equipment beyond the board."
+  },
+  'hollow-body': {
+    name: 'Hollow Body Hold', zone: 'core', compound: false, overhead: false,
+    scheme: '3×30s', rest: '60s',
+    steps: [
+      'Lie on back. Press lower back into floor firmly.',
+      'Raise shoulders slightly off the floor, arms overhead or by sides (harder overhead).',
+      'Lift legs to about 30–45° from floor. Hold the whole thing.',
+      'If lower back lifts off the floor, raise legs higher.',
+      'Breathe. Don\'t hold your breath.'
+    ],
+    cue: 'This is the foundation of midline stability. It trains the same position as a plank but from a different angle. When combined with reverse crunches, you\'re training the entire anterior core systematically.',
+    detail: "The hollow body position is the foundation of most gymnastics strength work. Common fault: the lower back lifting off the floor when the legs extend. Start with the legs bent at 90 degrees and arms at your sides if needed — reduce the lever arm until your lower back stays down. The correct position: lower back pressed to the floor, arms overhead, legs extended, feet a few inches off the floor. Everything is held by the anterior core, not the hip flexors. Breathe continuously — do not hold your breath. If you feel it in your hip flexors more than your abs, your lower back is probably arching. Reset, reduce lever arm, rebuild."
+  },
+  'windmill': {
+    name: 'KB Windmill', zone: 'core', compound: false, overhead: true,
+    scheme: '3×6 each', rest: '60s',
+    steps: [
+      'Hold KB in one hand overhead — arm locked straight, looking at the bell.',
+      'Turn feet 45° away from the loaded side.',
+      'Hinge at the hip on the loaded side, sliding the free hand down your leg.',
+      'Lower until you feel a stretch in the hip and hamstring.',
+      'Return by driving the hip back through. Keep eyes on the bell throughout.'
+    ],
+    cue: '⚠ Cellar overhead — this one may not be possible if height is too tight. Sub with a half-kneeling chop or side-lying rotation instead. The rotation element is what matters.',
+    detail: "One of the most technically demanding movements in the plan. Common faults: bending at the waist instead of hinging at the hip, looking down instead of at the bell, feet in the wrong position. Setup: feet roughly 45 degrees, weight in the top hand. Push your hip out to the side of the top arm — this is the hinge. Lower your free hand down your leg while keeping the top arm locked out and your eyes on the bell. The movement is a hip hinge, not a side bend. The bell overhead should remain stacked directly above the shoulder throughout. At the bottom, the free hand touches the floor or reaches toward the ankle. Reverse by driving the hip back in."
+  },
+  'incline-press': {
+    name: 'Incline DB Press', zone: 'support', compound: true, overhead: false,
+    scheme: '3×8', rest: '90s',
+    steps: [
+      'Set bench to 30–45° incline. Sit with DBs on knees, kick them to chest height as you lie back.',
+      'Plant feet, arch upper back slightly.',
+      'Press up and slightly inward — the DBs should meet at the top.',
+      'Lower with control, feel the stretch in the upper chest.',
+      'Keep elbows at roughly 70° — not flared, not tucked.'
+    ],
+    cue: 'Upper chest is usually underdeveloped at your build. This directly targets it. The bench angle is key — too steep and it becomes a shoulder press.'
+  },
+  'pallof-press': {
+    name: 'Pallof Press (KB)', zone: 'core', compound: false, overhead: false,
+    scheme: '3×10 each', rest: '60s',
+    steps: [
+      'Kneel sideways to a fixed point. Hold KB at chest with both hands.',
+      'Press it directly out in front of you — hold 2 seconds.',
+      'Return to chest. The resistance tries to rotate you — resist it.',
+      'Maintain a tall kneeling position. Don\'t lean into it.',
+      'Switch sides. The side closer to the ground works harder.'
+    ],
+    cue: 'Without a cable machine, use a KB held at chest and resist rotation manually, or use a band anchored to a fixed point. The anti-rotation demand is the entire point.',
+    detail: "An anti-rotation exercise — the goal is to resist movement, not create it. Common faults: using a too-light band or KB that does not create enough rotational pull, letting the torso rotate as you press out. Stand sideways to the anchor point. Hold the band or cable at your chest. Press straight out in front of you — as you extend the arms, the rotational pull increases. Hold for a beat at full extension. Return. The core works hardest at full extension. If you feel nothing in the obliques, move further from the anchor point to increase the resistance."
+  },
+  'hammer-curl': {
+    name: 'Hammer Curl', zone: 'support', compound: false, overhead: false,
+    scheme: '3×10', rest: '60s',
+    steps: [
+      'Hold DBs with a neutral grip (thumbs up), arms at sides.',
+      'Curl both arms simultaneously — elbows stay pinned to sides.',
+      'At the top, squeeze hard and hold for a beat.',
+      'Lower slowly — 3 seconds down.',
+      'No swinging. If you\'re swinging, it\'s too heavy.'
+    ],
+    cue: 'Hammer curls hit brachialis (the muscle under the bicep that pushes it up) and brachioradialis (forearm). At your frame, building these gives serious arm thickness without needing heavy barbell curls.',
+    detail: "Neutral grip means the brachialis and brachioradialis take more load than a supinated curl. Common faults: swinging the torso, letting the elbows drift forward, not completing full extension. Elbows stay pinned to the sides throughout. Curl up to your shoulder — not just to 90 degrees. Lower fully — the brachialis gets its best work on the full eccentric. No swing. If you cannot complete the rep without torso movement, the weight is too heavy. These can be done alternating or simultaneously — alternating allows a slightly heavier weight because the rest between arms is longer."
+  },
+  'bird-dog': {
+    name: 'Bird Dog', zone: 'core', compound: false, overhead: false,
+    scheme: '3×8 each', rest: '60s',
+    steps: [
+      'On all fours, hands under shoulders, knees under hips.',
+      'Brace your core, then extend opposite arm and leg simultaneously.',
+      'Hold 2–3 seconds. Lower with control.',
+      'Don\'t let the hips rotate or the lower back arch.',
+      'Repeat other side. This is slow, deliberate work.'
+    ],
+    cue: 'Bird dog and dead bug are your primary lower back health exercises. Do them well. At your height, lower back stability is critical for everything else in this plan.',
+    detail: "Looks easy, very easy to do wrong. Common faults: rotating the hips as the leg extends, the lower back arching, the extended arm drifting wide. Before extending, brace the core and press your lower back slightly into a neutral position — not flat, not arched. Extend the opposite arm and leg simultaneously but keep both close to the plane of the body — the arm extends forward at shoulder height, the leg extends back at hip height. No rotation. Hold for 2 seconds at full extension. If your hips are rocking you are going too fast or your core is not engaged. The anti-rotation demand is what makes this exercise — fight any tendency for the hips to shift."
+  },
+  'tricep-kickback': {
+    name: 'Tricep Kickback', zone: 'support', compound: false, overhead: false,
+    scheme: '3×12', rest: '60s',
+    steps: [
+      'Hinge forward, upper arm parallel to floor, elbow at 90°.',
+      'Extend the arm back until it\'s straight, squeezing the tricep hard.',
+      'Pause at full extension — hold 1 second.',
+      'Lower with control. The upper arm must not move.',
+      'Do both arms simultaneously or one at a time braced on the bench.'
+    ],
+    cue: 'Light is right for kickbacks — the leverage makes even 10kg feel heavy if you\'re doing them properly. The squeeze at lockout is the whole exercise.'
+  },
+  'kb-clean-press': {
+    name: 'KB Clean & Press (Seated)', zone: 'heavy', compound: true, overhead: true,
+    scheme: '4×5 each', rest: '2 min',
+    steps: [
+      'Seated on bench. Clean the KB to the rack position — wrist straight, bell resting on forearm.',
+      'From rack position, press overhead with a vertical forearm path.',
+      'Lower back to rack, then lower to the swing position.',
+      'One fluid movement: clean to rack, rack to press, press to rack, rack down.',
+      'Seated to manage cellar height — maintain tall posture throughout.'
+    ],
+    cue: '⚠ Cellar overhead — always seated. This is a total body movement even seated — the hinge and clean demand full-body tension.'
+  },
+  'tate-press': {
+    name: 'Tate Press', zone: 'support', compound: false, overhead: false,
+    scheme: '3×12', rest: '60s',
+    steps: [
+      'Lie flat on the floor or bench. Hold two dumbbells above your chest, elbows pointing outward.',
+      'Lower the DBs by bending the elbows outward, bringing the tips toward your chest.',
+      'The elbows flare wide throughout — this is what distinguishes it from a skull crusher.',
+      'Drive back up by extending the triceps, squeezing hard at lockout.',
+      'Keep the upper arms as still as possible — only the forearms move.'
+    ],
+    cue: 'Targets the medial tricep head which kickbacks and close-grip work mostly miss. Go lighter than you think — 8 to 10kg is plenty to start. The floor version is fine; the bench gives slightly more range. Keep the movement strict and slow.',
+    detail: "An exercise most people have never done and immediately feel in muscles they did not know existed. Common faults: elbows drifting forward rather than staying pointed outward, rushing the movement, going too heavy. The elbows stay wide throughout — they point out to the sides. This is what distinguishes it from a skull crusher where elbows point up. As you lower, the DB tips touch your chest. Drive back up by squeezing the triceps. Keep the upper arms completely still — only the forearms move. The medial head of the tricep is being targeted specifically here — it is the inner tricep that gives the horseshoe shape. Expect to feel it on the second and third session more than the first as the muscle learns the movement."
+  },
+  'lateral-lunge': {
+    name: 'Lateral Lunge', zone: 'heavy', compound: true, overhead: false,
+    scheme: '3×10 each', rest: '90s',
+    steps: [
+      'Stand tall, feet together. Hold a DB at chest or at sides for balance.',
+      'Step wide to one side — plant the foot fully, toes pointing forward or slightly out.',
+      'Sit into the bent leg, pushing the hips back. The straight leg stays extended, feeling a strong groin stretch.',
+      'Drive through the heel of the bent leg to return to standing.',
+      'Alternate sides or complete all reps on one side before switching.'
+    ],
+    cue: "At 6ft 5 your long stride means this will load the adductors hard even with bodyweight. Add a KB when it feels controlled. The groin stretch at the bottom is the whole point — don't rush through it.",
+    detail: "The stance width is the key variable at your height. Common faults: the stepped foot not being wide enough, the torso collapsing forward, not sitting back and down into the hinge position. Step wide — wider than feels natural at first. The foot of the bent leg should point forward or very slightly out. Sit into the bent leg by pushing the hips back and down, not just down. The straight leg should feel a strong adductor stretch at the bottom — this is the whole point. Drive through the heel of the bent leg to return. If you feel it mainly in the quad of the bent leg you are not hinging back enough — push the hips further back."
+  },
+  'sumo-squat': {
+    name: 'Sumo Squat', zone: 'support', compound: true, overhead: false,
+    scheme: '3×12', rest: '75s',
+    steps: [
+      'Feet wider than shoulder-width, toes turned out 45°. Hold a KB vertically by the horns at chest.',
+      'Sit straight down between your legs — not back like a hinge, straight down.',
+      'Keep the chest tall, knees tracking over toes throughout.',
+      'At the bottom, squeeze the inner thighs to initiate the drive up.',
+      'Pause briefly at the top, squeezing glutes and adductors.'
+    ],
+    cue: 'The wide stance and outward toe angle puts the adductors (groin) under serious load. This hits the inner thigh in a way a regular squat cannot. If it feels easy, go heavier or slow the descent to 4 seconds.',
+    detail: "Wide stance, toes out 45 degrees. Common faults: the knees caving inward rather than tracking over the toes, the torso pitching forward as the weight gets heavier, not reaching full depth. The cue is: push your knees out in the same direction as your toes throughout. At the bottom, use your elbows to push your knees out if holding a goblet position. Squeeze the inner thighs on the drive up — the adductors are doing real work here and you want to feel them. Chest tall throughout. At your height the wider stance changes the geometry significantly — you may find you can hit deeper on a sumo than a standard squat."
+  },
+  'copenhagen-plank': {
+    name: 'Copenhagen Plank', zone: 'core', compound: false, overhead: false,
+    scheme: '3×20s each', rest: '60s',
+    steps: [
+      'Lie on your side. Place your top foot on the bench, bottom leg hanging underneath.',
+      'Push up through your top foot and forearm to raise your hips off the floor.',
+      'Hold the position — your inner thigh is doing the work, not just your core.',
+      'Keep hips stacked, body in a straight line.',
+      'Lower with control. Do both sides.'
+    ],
+    cue: 'This is the most effective adductor exercise that needs no equipment beyond a bench. It directly targets groin injury prevention and inner thigh strength. Start with 20 seconds — it is harder than it looks.',
+    detail: "The hardest adductor exercise that requires no equipment. Common faults: letting the bottom leg hang without tension, the hips dropping, trying to rush the hold. The top foot drives into the bench — not just resting on it. The bottom leg should be reaching down with tension, not passively hanging. Hips stacked, body straight. If the inside of your top thigh is not burning within 10 seconds, you are not driving the top foot hard enough. Start with shorter holds if 20 seconds is impossible — 8 to 10 seconds with good form beats 20 seconds with collapsed hips."
+  },
+  'tibialis-raise': {
+    name: 'Tibialis — Band & Rock Raise', zone: 'core', compound: false, overhead: false,
+    scheme: '3×15', rest: '60s',
+    steps: [
+      'Sit on the floor or a low bench. Loop a resistance band around both feet just below the toes.',
+      'Anchor the other end of the band under something fixed — a heavy KB works perfectly. Place the 6kg KB on the floor, loop band under it.',
+      'Dorsiflex both feet (pull toes toward shins) against the band resistance. Hold 1 second at full contraction.',
+      'For the rock variation: stand with heels on the floor, rock weight forward onto toes then pull back hard, driving heels down and toes up. The band adds resistance at the top where the tibialis is strongest.',
+      'Lower slowly — 3 seconds down. The eccentric is where most of the adaptation happens.'
+    ],
+    cue: "The band-resisted version is better than a wall raise because it loads the tibialis through its full range and peaks at the top where bodyweight raises go slack. The 6kg KB as an anchor is ideal — heavy enough to hold the band, light enough to not move. If the band feels too easy, double it up.",
+    detail: "An exercise almost nobody does and one of the most useful in the plan for long-term knee health. The tibialis anterior is the muscle down the front of the shin — it dorsiflexes the foot and decelerates the leg on impact. Weak tibialis is associated with shin splints, runner's knee, and general knee instability at your frame size. The 6kg KB anchors the band so the resistance peaks at the top of the dorsiflexion where the muscle is strongest. Common fault: moving too fast and not getting the full contraction. Hold 1 second at the top. 3 seconds down. The muscle will fatigue quickly at first — that is expected."
+  },
+  'single-leg-rdl': {
+    name: 'Single Leg RDL', zone: 'heavy', compound: true, overhead: false,
+    scheme: '3×8 each', rest: '90s',
+    steps: [
+      'Hold a DB or KB in the opposite hand to the standing leg.',
+      'Hinge forward on the standing leg, letting the other leg rise behind you as a counterbalance.',
+      'Lower the weight toward the floor, feeling a stretch in the standing hamstring.',
+      'Drive through the standing heel to return — squeeze the glute hard at the top.',
+      'Keep the hips square throughout — do not let them rotate open.'
+    ],
+    cue: "Trains the hamstring and glute unilaterally, exposing and fixing strength imbalances between legs. At your height the balance challenge is real — use a wall lightly for support until you're comfortable. One side will be weaker.",
+    detail: "The balance challenge at your height is real — your centre of mass is very high. Common faults: the non-working hip dropping and rotating outward, looking down and losing a neutral spine, letting the bell drift away from the body. The cue is: keep both hips level throughout — the non-working leg rises as a counterbalance but the hips stay square. Think of the whole movement as a rotation around the standing hip. The bell stays close to the standing leg on the way down. At the bottom, you should feel a strong hamstring stretch in the standing leg. Return by driving through the standing heel and bringing the hips forward. Use a wall for fingertip balance if needed — that is not cheating, it is learning the movement."
+  },
+  'wall-sit': {
+    name: 'Wall Sit', zone: 'support', compound: false, overhead: false,
+    scheme: '3×45s', rest: '60s',
+    steps: [
+      'Back flat against the wall, slide down until thighs are parallel to the floor.',
+      'Feet hip-width, directly under knees — not in front of them.',
+      'Arms across chest or at sides, not resting on your thighs.',
+      'Hold. Breathe. Do not let the hips creep up.',
+      'Add difficulty: hold a plate on your lap, or do single-leg variations.'
+    ],
+    cue: 'Brutal quad endurance work requiring zero equipment. At a 45 second hold the quad burn will be significant. This also builds the VMO (teardrop muscle above the knee) which is important for knee stability at your frame size.'
+  },
+  'kb-curl-extension': {
+    name: 'KB Curl to Overhead Extension', zone: 'support', compound: false, overhead: true,
+    scheme: '3x10', rest: '60s',
+    steps: [
+      'Kneel upright, core braced, hips over knees. Hold KB by the horns or handle in both hands.',
+      'Curl the KB up toward your chin — elbows drive forward, biceps doing the work.',
+      'Without stopping, continue the arc overhead and lower the KB behind your head — elbows point to ceiling, tricep extension position.',
+      'Press back up by extending the elbows — triceps drive the KB overhead.',
+      'Lower back behind the head, return to chin height, then lower to start. One full rep.'
+    ],
+    cue: 'Kneeling keeps this cellar-safe. The curl and extension are two exercises in one fluid arc — slow and deliberate wins here. Keep elbows tracking inward throughout. If the KB feels unstable, hold by the horns with both hands.',
+    detail: "The transition from curl to extension is the tricky part. Common faults: losing the arc by stopping at the shoulder and restarting, gripping too tight and restricting the arc, rushing through. Think of the movement as one continuous circle. From the bottom, curl up and continue that arc overhead — the momentum of the curl feeds into the extension position. At the top, elbows point to the ceiling. Extend by straightening the elbows — triceps do the work. Reverse the arc back down. Kneeling is essential here both for cellar height and to remove any body English. The movement should be slow enough that you feel each muscle group taking over from the other."
+  },
+  'kb-halo': {
+    name: 'KB Halo', zone: 'core', compound: false, overhead: true,
+    scheme: '3x8 each', rest: '60s',
+    steps: [
+      'Kneel or stand. Hold KB by the horns, upside down (bottoms-up) at chest height.',
+      'Circle the KB around your head in a smooth arc — lead with one elbow, let the KB orbit your skull.',
+      'Keep the movement controlled and close to your head. Core stays braced.',
+      'Complete all reps in one direction, then reverse.',
+      'Do not let the hips shift or the lower back arch as the KB passes behind.'
+    ],
+    cue: 'Halos are shoulder mobility and anti-rotation core in one. The bottoms-up grip makes it harder and engages the shoulder stabilisers more. Kneel for cellar clearance — easier to control the arc without standing height.'
+  },
+  'kb-woodcutter': {
+    name: 'KB Woodcutter (Chop)', zone: 'core', compound: false, overhead: false,
+    scheme: '3x10 each', rest: '60s',
+    steps: [
+      'Stand or half-kneel. Hold KB with both hands, arms extended.',
+      'Start with the KB high at one shoulder — rotate through the core to drive it diagonally down toward the opposite hip.',
+      'The movement is a diagonal chop — hips rotate, core drives it, arms just guide.',
+      'Return the KB back up to the start position under control. That is one rep.',
+      'Complete all reps on one diagonal then switch. Can also be done low-to-high for different oblique emphasis.'
+    ],
+    cue: 'This is rotational core — the movement that actually trains your abs to resist and create rotation, which is what they are for. Drive from the hips and core, not the arms. Half-kneeling position removes any lower body compensation.'
+  },
+  'kb-goblet-squat-pause': {
+    name: 'KB Goblet Squat (Pause)', zone: 'heavy', compound: true, overhead: false,
+    scheme: '4x8', rest: '90s',
+    steps: [
+      'Hold KB at chest by the horns. Feet shoulder width, toes out slightly.',
+      'Sit down between your knees — chest stays tall, the KB acts as a counterweight.',
+      'At the bottom, pause for 2 full seconds. Do not bounce out.',
+      'Drive through the whole foot back to standing. Squeeze glutes at the top.',
+      'The pause is the whole point — it kills the stretch reflex and makes your legs do real work.'
+    ],
+    cue: 'At 6ft 5 your femurs are long. You need a wider stance than most coaching cues suggest — find the stance that lets you hit depth without your lower back rounding. The pause at the bottom builds serious quad and glute strength quickly.',
+    detail: "The pause is the entire point. It removes any stretch reflex from the bottom position and forces the muscles to restart from a dead stop. Common faults: relaxing completely at the bottom instead of staying braced, rushing back up at the end of the pause. At the bottom of the pause, you should still be actively pushing your knees out, keeping your chest tall, and maintaining a braced core. Count a full 2 seconds — not a tap and go. The first rep of each set will feel the hardest because there is no eccentric loading yet. At your height, the wide stance is not optional — it is necessary to achieve depth without compromising the spine."
+  },
+  'kb-lateral-lunge-kb': {
+    name: 'KB Lateral Lunge', zone: 'heavy', compound: true, overhead: false,
+    scheme: '3x10 each', rest: '75s',
+    steps: [
+      'Hold one KB at chest or goblet position. Stand tall.',
+      'Step wide to one side, sit into the bent leg while keeping the straight leg extended.',
+      'Hold KB at chest keeps you upright — do not let it pull you forward.',
+      'Feel a strong adductor (groin) stretch in the straight leg at the bottom.',
+      'Drive through the bent heel to return. Alternate sides or complete all reps one side at a time.'
+    ],
+    cue: 'The KB adds load but also acts as a counterbalance which actually helps depth. At your height the lateral lunge is one of the best adductor exercises available — the range of motion is huge with long legs.'
+  },
+  'kb-single-arm-row-kb': {
+    name: 'KB Single Arm Row', zone: 'heavy', compound: true, overhead: false,
+    scheme: '4x10 each', rest: '75s',
+    steps: [
+      'Hinge forward about 45 degrees, brace one hand on your knee or a surface.',
+      'Hold KB in the working arm, let it hang. Start with a slight shoulder drop to get full range.',
+      'Drive elbow back and up — think elbow to ceiling, not hand to hip.',
+      'Pause at the top. Lower slowly — 3 seconds down.',
+      'Keep the hips square throughout. At your height, brace well or the hips will rotate.'
+    ],
+    cue: 'KB rows allow a longer range of motion than a dumbbell because of the offset handle. Use that. The slow negative is where most of the back development happens.',
+    detail: "One arm braced, one arm working. Common faults: rotating the torso on the pull, not reaching full range at the bottom, pulling to the hip instead of the armpit. At the bottom, let the shoulder drop fully — reach toward the floor to get full scapular protraction. Then initiate by pulling the shoulder blade back first, then row the elbow straight back and up toward the ceiling. At the top, the elbow should be above the level of the back. Hold for a beat. Lower slowly — the eccentric matters. At your height the range of motion here is very large and the KB handle allows a longer arc than a dumbbell. Use that range."
+  },
+  'kb-swing-hiit': {
+    name: 'KB Swing — HIIT Finisher', zone: 'heavy', compound: true, overhead: false,
+    scheme: '10 rounds: 20s on / 10s off', rest: 'built in',
+    steps: [
+      'Standard hinge setup — hips back, lats engaged, KB between legs.',
+      'Explosive hip snap — the bell floats to shoulder height from hip power alone.',
+      'Round structure: 20 seconds max effort swings, 10 seconds rest. Repeat 10 times.',
+      'That is 5 minutes total. It will feel like much more.',
+      'Maintain form throughout — when form breaks, reduce reps per interval rather than swinging sloppy.'
+    ],
+    cue: 'This is your cardio finisher. 10 rounds of Tabata-style KB swings is brutal and efficient. It hits posterior chain, gets the heart rate up, and takes 5 minutes. Do this at the end of every KB session.'
+  },
+  'kb-press-seated': {
+    name: 'KB Single Arm Press (Seated)', zone: 'heavy', compound: true, overhead: true,
+    scheme: '3x8 each', rest: '75s',
+    steps: [
+      'Sit on bench or floor. Clean KB to rack position — wrist straight, bell resting on forearm, elbow tucked.',
+      'Press vertically — think pushing the ceiling straight up, not angling out.',
+      'Lock out fully at the top, pause, lower with control back to rack.',
+      'Keep the non-working hand on your knee. Do not lean away from the working side.',
+      'Complete all reps on one side before switching.'
+    ],
+    cue: 'Seated removes the leg drive and makes this a pure shoulder press. The rack position of a KB is different to a dumbbell — the bell rests on your forearm and wrist, not in your palm. Get comfortable with the rack before adding weight.',
+    detail: "The rack position is unfamiliar at first. The bell rests on the back of the forearm, not in the palm. The wrist should be straight — not bent back. Clean the bell to rack before pressing. Press straight up — not forward. At the top, the elbow fully locks out and the bicep is close to the ear. At your height, seated pressing removes the leg drive entirely, making this a pure shoulder test. If you are leaning away from the working side to press, the weight is too heavy. Non-working hand on the knee for stability, not braced on the bench."
+  },
+  'kb-cross-body-clean': {
+    name: 'Cross-Body KB Clean', zone: 'heavy', compound: true, overhead: false,
+    scheme: '4x6 each', rest: '90s',
+    steps: [
+      'Stand with the KB on the floor slightly outside your right foot. Hinge to it — hips back, flat back.',
+      'Pull the KB up and across your body in one fluid arc — it travels diagonally from low right to high left.',
+      'Receive it in rack position on the left shoulder — wrist straight, bell resting on forearm.',
+      'Lower back down to the floor on the left side. Now pull it across to rack on the right. Two reps done.',
+      'The movement is hip-driven — legs and hips initiate, the arm guides. Do not muscle it up with the arm.'
+    ],
+    cue: 'This is power and rotation in one movement. The diagonal path trains the same pattern as throwing or chopping — real world rotation under load. Keep the pull tight to the body, not a wide loop. At your height the hinge needs to be deliberate — do not round the lower back at pickup.',
+    detail: "The diagonal path is what makes this movement unique. Common faults: trying to muscle it with the arm, not using the hip drive, letting the bell swing wide rather than tight to the body. It should feel like a row that redirects into a clean. The hip drives the initial pull — think of snapping the hip on the same side as the bell. The bell then travels in a tight arc across the body. Keep it close — a wide loop kills the power. At the top, catch in the rack position on the opposite shoulder. Lower with control to the opposite side. The rotational component means the obliques and cross-body sling system are working hard — this is power training, not just pulling."
+  },
+  'kb-side-swing': {
+    name: 'KB Side Swing (Lateral Pendulum)', zone: 'core', compound: false, overhead: false,
+    scheme: '3x12 each', rest: '60s',
+    steps: [
+      'Stand with feet shoulder-width, KB in both hands or one hand at hip height.',
+      'Swing the KB laterally across your body — pendulum arc from hip to hip.',
+      'The anti-lateral-flexion demand is the point — resist the KB pulling you sideways.',
+      'Core stays braced throughout. Hips stay square. Only the KB moves.',
+      'Control the swing both ways — do not let momentum take over.'
+    ],
+    cue: 'This replaces suitcase carry for home gym use — same anti-lateral-core demand, works in a 2 metre square. The obliques and quadratus lumborum work hard to keep you upright against the lateral load. Start with 12kg, slow and deliberate.'
+  },
+  'kb-tibialis-raise-kb': {
+    name: 'KB Tibialis Raise (Band Anchored)', zone: 'core', compound: false, overhead: false,
+    scheme: '3x15', rest: '60s',
+    steps: [
+      'Sit or stand with heels grounded. Loop resistance band around both feet just below the toes.',
+      'Anchor the band under the 6kg KB placed on the floor in front of you.',
+      'Dorsiflex both feet — pull toes toward shins against the band resistance. Hold 1 second at top.',
+      'Lower slowly — 3 seconds down. The eccentric is where the adaptation happens.',
+      'Keep the movement smooth. If it feels easy, loop the band twice or use a heavier anchor.'
+    ],
+    cue: 'The 6kg KB is the perfect anchor — heavy enough to hold the band, light enough not to slide. This is one of the most important exercises in the plan for long-term knee health at your height and build.'
+  },
+
+};
+
+const DAYS = [
+  {
+    abbr:'MON', name:'Monday', type:'train', session:'A', label:'SESSION A',
+    desc:'Upper focus — heavy press and pull, seated overhead, light leg support, core stability.',
+    zones: {
+      heavy: ['floor-press','barbell-row','seated-ohp'],
+      support: ['goblet-squat','rdl','lateral-raise','tate-press'],
+      core: ['dead-bug','plank']
+    },
+    meals: [
+      {time:'07:30', name:'Eggs on toast', desc:'3 eggs scrambled, 2 slices brown toast, butter', baseKcal:480, baseProt:28, baseCarb:42, baseFat:18},
+      {time:'12:30', name:'Chicken pasta', desc:'180g chicken breast, pasta, jarred tomato sauce, frozen peas', baseKcal:720, baseProt:55, baseCarb:82, baseFat:10},
+      {time:'16:00', name:'Greek yoghurt', desc:'200g full-fat Greek yoghurt, drizzle of honey', baseKcal:220, baseProt:18, baseCarb:16, baseFat:8},
+      {time:'19:00', name:'Salmon and rice', desc:'200g salmon fillet, white rice, frozen broccoli, soy sauce', baseKcal:700, baseProt:46, baseCarb:74, baseFat:22},
+      {time:'21:00', name:'Cottage cheese', desc:'150g cottage cheese, plain or with a spoon of jam', baseKcal:165, baseProt:20, baseCarb:8, baseFat:4}
+    ]
+  },
+  {
+    abbr:'TUE', name:'Tuesday', type:'train', session:'B', label:'SESSION B',
+    desc:'Lower focus — heavy hinge and squat patterns, upper pump support, adductor and tibialis work.',
+    zones: {
+      heavy: ['rdl','lateral-lunge','bulgarian'],
+      support: ['sumo-squat','floor-press','hammer-curl'],
+      core: ['kb-side-swing','copenhagen-plank','tibialis-raise']
+    },
+    meals: [
+      {time:'07:30', name:'Eggs and flatbread', desc:'3 eggs any style, 1 flatbread, hot sauce', baseKcal:460, baseProt:26, baseCarb:38, baseFat:18},
+      {time:'12:30', name:'Tuna pasta', desc:'1 tin tuna, pasta, sweetcorn, mayo, black pepper', baseKcal:680, baseProt:50, baseCarb:76, baseFat:14},
+      {time:'16:00', name:'Protein shake', desc:'Whey with milk', baseKcal:280, baseProt:30, baseCarb:18, baseFat:6},
+      {time:'19:00', name:'Chicken thighs and rice', desc:'Chicken thighs roasted, white rice, veg from the fridge', baseKcal:740, baseProt:50, baseCarb:72, baseFat:20},
+      {time:'21:00', name:'Greek yoghurt', desc:'200g full-fat Greek yoghurt', baseKcal:200, baseProt:18, baseCarb:12, baseFat:8}
+    ]
+  },
+  {
+    abbr:'WED', name:'Wednesday', type:'train', session:'C', label:'SESSION C',
+    desc:'Full send — total body compounds, high output. Everything works.',
+    zones: {
+      heavy: ['deadlift','thruster','renegade-row'],
+      support: ['push-up','push-up-narrow','wall-sit','kb-swing'],
+      core: ['hollow-body','windmill']
+    },
+    meals: [
+      {time:'07:30', name:'Oats', desc:'80g oats with milk, banana stirred in', baseKcal:420, baseProt:12, baseCarb:72, baseFat:8},
+      {time:'12:30', name:'Chicken rice bowl', desc:'Leftover chicken, white rice, soy sauce, frozen peas', baseKcal:700, baseProt:52, baseCarb:78, baseFat:10},
+      {time:'16:00', name:'Protein shake', desc:'Whey with milk', baseKcal:280, baseProt:30, baseCarb:18, baseFat:6},
+      {time:'19:00', name:'Salmon and rice', desc:'200g salmon fillet, white rice, broccoli, soy sauce', baseKcal:700, baseProt:46, baseCarb:74, baseFat:22},
+      {time:'21:00', name:'Cottage cheese', desc:'150g cottage cheese, plain or with a spoon of jam', baseKcal:165, baseProt:20, baseCarb:8, baseFat:4}
+    ]
+  },
+  {
+    abbr:'THU', name:'Thursday', type:'train', session:'D', label:'SESSION D',
+    desc:'Full kettlebell session — arms, shoulders, back, legs, core, cardio finisher.',
+    zones: {
+      heavy: ['kb-press-seated','kb-single-arm-row-kb','kb-cross-body-clean','kb-goblet-squat-pause','kb-lateral-lunge-kb'],
+      support: ['kb-curl-extension','kb-halo','kb-woodcutter'],
+      core: ['kb-tibialis-raise-kb','kb-side-swing','kb-swing-hiit']
+    },
+    meals: [
+      {time:'07:30', name:'Oats', desc:'80g oats with milk, banana stirred in', baseKcal:420, baseProt:12, baseCarb:72, baseFat:8},
+      {time:'12:30', name:'Chicken rice bowl', desc:'Leftover chicken, white rice, soy sauce, frozen peas', baseKcal:700, baseProt:52, baseCarb:78, baseFat:10},
+      {time:'16:00', name:'Protein shake', desc:'Whey with milk', baseKcal:280, baseProt:30, baseCarb:18, baseFat:6},
+      {time:'19:00', name:'Chicken pasta', desc:'Chicken breast, pasta, jarred tomato sauce, frozen peas', baseKcal:720, baseProt:55, baseCarb:82, baseFat:10},
+      {time:'21:00', name:'Cottage cheese', desc:'150g cottage cheese, plain or with a spoon of jam', baseKcal:165, baseProt:20, baseCarb:8, baseFat:4}
+    ]
+  },
+  {
+    abbr:'FRI', name:'Friday', type:'rest', session:'R', label:'REST',
+    desc:'Full rest day. Eat at rest targets. Walk if you feel like it. Sleep well.',
+    meals: [
+      {time:'08:00', name:'Eggs on toast', desc:'3 eggs any style, 2 slices seeded bread', baseKcal:450, baseProt:26, baseCarb:38, baseFat:16},
+      {time:'13:00', name:'Tuna rice bowl', desc:'1 tin tuna, white rice, sweetcorn, mayo', baseKcal:620, baseProt:45, baseCarb:70, baseFat:12},
+      {time:'16:00', name:'Greek yoghurt', desc:'200g full-fat Greek yoghurt, drizzle of honey', baseKcal:220, baseProt:18, baseCarb:16, baseFat:8},
+      {time:'19:00', name:'Whatever the house is having', desc:'Rest day flex — eat what works, aim for protein', baseKcal:700, baseProt:40, baseCarb:70, baseFat:20},
+      {time:'21:00', name:'Cottage cheese', desc:'150g cottage cheese if you want extra protein before bed', baseKcal:165, baseProt:20, baseCarb:8, baseFat:4}
+    ]
+  },
+  {
+    abbr:'SAT', name:'Saturday', type:'train', session:'A', label:'SESSION A',
+    desc:'Upper focus again — same structure as Monday. Beat last week by one rep or 1.25kg somewhere.',
+    zones: {
+      heavy: ['floor-press','barbell-row','seated-ohp'],
+      support: ['incline-press','lateral-raise','hammer-curl','tate-press'],
+      core: ['bird-dog','rev-crunch']
+    },
+    meals: [
+      {time:'08:00', name:'Eggs on toast', desc:'3 eggs scrambled, 2 slices brown toast, butter', baseKcal:480, baseProt:28, baseCarb:42, baseFat:18},
+      {time:'13:00', name:'Chicken pasta', desc:'Chicken breast, pasta, jarred tomato sauce', baseKcal:720, baseProt:55, baseCarb:82, baseFat:10},
+      {time:'16:00', name:'Greek yoghurt', desc:'200g full-fat Greek yoghurt, drizzle of honey', baseKcal:220, baseProt:18, baseCarb:16, baseFat:8},
+      {time:'19:00', name:'Salmon and rice', desc:'200g salmon fillet, white rice, frozen broccoli, soy sauce', baseKcal:700, baseProt:46, baseCarb:74, baseFat:22},
+      {time:'21:00', name:'Cottage cheese', desc:'150g cottage cheese, plain or with a spoon of jam', baseKcal:165, baseProt:20, baseCarb:8, baseFat:4}
+    ]
+  },
+  {
+    abbr:'SUN', name:'Sunday', type:'train', session:'B', label:'SESSION B',
+    desc:'Lower focus again — single leg RDL to address imbalances, goblet squat, KB swing.',
+    zones: {
+      heavy: ['single-leg-rdl','goblet-squat','kb-swing'],
+      support: ['sumo-squat','barbell-row','tricep-kickback'],
+      core: ['copenhagen-plank','tibialis-raise','bird-dog']
+    },
+    meals: [
+      {time:'08:00', name:'Big breakfast', desc:'3 eggs, 2 rashers bacon or sausages, toast', baseKcal:600, baseProt:34, baseCarb:40, baseFat:28},
+      {time:'13:00', name:'Tuna pasta', desc:'1 tin tuna, pasta, sweetcorn, mayo, black pepper', baseKcal:680, baseProt:50, baseCarb:76, baseFat:14},
+      {time:'16:00', name:'Protein shake', desc:'Whey with milk', baseKcal:280, baseProt:30, baseCarb:18, baseFat:6},
+      {time:'19:00', name:'Chicken thighs and rice', desc:'Chicken thighs roasted, white rice, whatever veg', baseKcal:740, baseProt:50, baseCarb:72, baseFat:20},
+      {time:'21:00', name:'Greek yoghurt', desc:'200g full-fat Greek yoghurt', baseKcal:200, baseProt:18, baseCarb:12, baseFat:8}
+    ]
+  }
+];
+
+function scaleMeal(meal, targetKcal, isRest) {
+  const baseTotal = DAYS.reduce((_, d) => _, 0); // not used here
+  const scale = targetKcal / 2715; // base built for ~2715 kcal
+  const restScale = isRest ? 0.83 : 1;
+  const s = scale * restScale;
+  return {
+    ...meal,
+    kcal: Math.round(meal.baseKcal * s),
+    prot: Math.round(meal.baseProt * s),
+    carb: Math.round(meal.baseCarb * s),
+    fat: Math.round(meal.baseFat * s),
+  };
+}
+
+// ─────────────────────────────────────────────────────────
+// SHOPPING LIST
+// ─────────────────────────────────────────────────────────
+
+const SHOPPING = {
+  '🥩 Protein': [
+    {name:'Chicken breast', qty:'1kg', aldi:'Birchwood Farm Chicken Breast Fillets 1kg ~£5.49'},
+    {name:'Salmon fillets', qty:'2 packs', aldi:'Specially Selected Scottish Salmon Fillets ~£3.99'},
+    {name:'Tuna in water', qty:'4 tins', aldi:'Specially Selected Tuna Chunks in Water ~£0.79 each'},
+    {name:'Eggs', qty:'12', aldi:'Free Range Eggs 12pk ~£2.19'},
+    {name:'Greek yoghurt', qty:'2 x 500g', aldi:'Milbona Greek Style Yogurt 500g ~£1.09'},
+    {name:'Cottage cheese', qty:'2 x 300g', aldi:'Milbona Cottage Cheese 300g ~£0.89'},
+    {name:'Whey protein', qty:'1 tub', aldi:'Lift Whey Protein (when in season) ~£9.99 — else Myprotein online'},
+    {name:'Chicken thighs', qty:'1kg', aldi:'Birchwood Farm Chicken Thighs 1kg ~£3.49'},
+  ],
+  '🍝 Carbs': [
+    {name:'Pasta (dry)', qty:'1kg', aldi:'Cowbelle Fusilli or Penne 500g ~£0.45'},
+    {name:'White rice (dry)', qty:'2kg', aldi:'Worldwide Foods Basmati Rice 2kg ~£2.99'},
+    {name:'Oats', qty:'1kg', aldi:'Harvest Morn Porridge Oats 1kg ~£0.75'},
+    {name:'Brown or seeded bread', qty:'1 loaf', aldi:'Kingsmill Seeded or own Multiseed ~£1.25'},
+    {name:'Flatbreads', qty:'1 pack', aldi:'Specially Selected Flatbreads 4pk ~£1.29'},
+    {name:'Banana', qty:'6', aldi:'Loose bananas ~£0.13 each'},
+  ],
+  '🥦 Veg & Fruit': [
+    {name:'Frozen broccoli', qty:'1kg', aldi:'Harvest Basket Broccoli Florets 1kg ~£1.09'},
+    {name:'Frozen peas', qty:'1kg', aldi:'Harvest Basket Garden Peas 1kg ~£0.89'},
+    {name:'Frozen sweetcorn', qty:'1kg', aldi:'Harvest Basket Sweetcorn 1kg ~£0.89'},
+    {name:'Spinach', qty:'200g bag', aldi:'Babyleaf Spinach 200g ~£0.89'},
+    {name:'Mixed veg', qty:'1kg frozen', aldi:'Harvest Basket Mixed Veg 1kg ~£1.09'},
+  ],
+  '🧈 Dairy & Fats': [
+    {name:'Semi-skimmed milk', qty:'4 pints', aldi:'Cowbelle Semi-Skimmed 4pt ~£1.35'},
+    {name:'Butter', qty:'250g', aldi:'Cowbelle Butter 250g ~£1.69'},
+    {name:'Cheddar', qty:'400g', aldi:'Cowbelle Mature Cheddar 400g ~£2.29'},
+  ],
+  '🫙 Cupboard': [
+    {name:'Tomato pasta sauce', qty:'2 jars', aldi:'Cucina Pasta Sauce ~£0.89 each'},
+    {name:'Soy sauce', qty:'1 bottle', aldi:'Worldwide Foods Soy Sauce ~£0.79'},
+    {name:'Honey', qty:'1 jar', aldi:'Specially Selected Pure Honey ~£1.99'},
+    {name:'Mayo (light)', qty:'1 jar', aldi:'Bramwells Light Mayo ~£0.89'},
+    {name:'Olive oil', qty:'1 bottle', aldi:'Solesta Olive Oil 750ml ~£2.99'},
+  ],
+  '💊 Supplements': [
+    {name:'Creatine monohydrate', qty:'500g', aldi:'Not stocked — MyProtein 500g ~£9 online'},
+  ],
+};
+
+
+const COOKOFF = [
+  {
+    day: 'SUN', title: 'Cook extra chicken pasta at dinner',
+    desc: "Whatever you're making Sunday evening — double the pasta and chicken. Box one portion for Monday lunch. Takes zero extra effort.",
+    portions: ['Mon lunch sorted', 'No separate prep needed']
+  },
+  {
+    day: 'SUN', title: 'Portion out oats into bowls',
+    desc: '3 mins — measure 80g into 3 bowls or containers. Cover and leave in the cupboard. Breakfast decision already made for Mon, Fri, Wed.',
+    portions: ['Mon oats', 'Wed oats', 'Fri oats']
+  },
+  {
+    day: 'ANY', title: 'Keep a tuna tin + flatbread visible',
+    desc: "Seriously. If you can see it, you'll eat it. A tin of tuna and a flatbread on the counter is a 5-minute 40g protein lunch. Put them somewhere obvious.",
+    portions: ['No prep', 'Just placement']
+  },
+  {
+    day: 'ANY', title: 'Boil 4 eggs on a training day morning',
+    desc: "Boil while the kettle's on. Put in the fridge. Ready for a snack or adding to a wrap or salad without thinking.",
+    portions: ['2 days of snacks', 'Fridge-ready']
+  },
+  {
+    day: 'WED', title: 'Cook enough rice for 2 meals',
+    desc: 'Rice takes 20 mins regardless — cook double. Leftover rice reheats in 2 minutes with a splash of water. Sets up Thu or Fri lunch.',
+    portions: ['Wed dinner', 'Thu or Fri lunch']
+  },
+];
+
+const PRINCIPLES = [
+  { icon: '🎯', title: 'The actual goal', body: "Look better, feel stronger, keep it for life. Not a 12-week cut. Not a bulk. Not a bodybuilder programme. The trap is real — progressive overload and structured eating work, but they're a means to an end, not a religion. If it stops being sustainable, it stops working." },
+  { icon: '⚖️', title: 'How weight affects the plan', body: 'Calorie and protein targets update live in the sidebar as you adjust your weight. Every extra stone adds roughly 80–100 kcal to your daily target and ~6g protein. At your build, eating enough is genuinely the harder part — not training.' },
+  { icon: '🥩', title: 'Protein — meaningful, not obsessive', body: "Target is ~170g/day. That's 1.8g per kg — enough to build muscle without tracking every gram. You'll get there across the day from chicken, fish, eggs, cottage cheese and Greek yoghurt without doing anything unusual. If you hit 150g on a rest day, fine." },
+  { icon: '🍝', title: 'Eat the same things repeatedly', body: "You said you won't get bored of pasta, rice, chicken, fish. That's an asset. Decision fatigue is what breaks food plans. Chicken pasta for lunch 4 days a week is completely fine. The plan is built around repetition as a feature, not a bug." },
+  { icon: '🪑', title: 'Cellar overhead rule', body: 'Any overhead pressing is programmed seated or kneeling. Not a compromise — seated overhead work removes leg drive and isolates the shoulders properly. Look for the blue badge on exercise cards.' },
+  { icon: '📈', title: 'Progressive overload is the whole game', body: "The A/B/C rotation means you repeat session types across the week. Friday repeats Monday — the only goal is to lift slightly heavier or do one more clean rep. Log your weights. That's the programme." },
+  { icon: '💊', title: 'The only supplement worth buying first', body: 'Creatine monohydrate. 5g/day, any brand, no loading needed. ~£15 for 3 months. Most researched supplement in existence. Particularly useful for ectomorphs who have naturally lower creatine stores. Everything else is optional.' },
+  { icon: '🎉', title: 'Saturday is built in', body: "Flex day is not a cheat day — it's a design feature. Social life, family dinners, a takeaway — none of it breaks a week of good training. The plan is built to survive real life, not compete with it." },
+];
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  const pg = document.getElementById('page-' + name);
+  if (pg) pg.classList.add('active');
+  const nb = document.getElementById('nav-' + name);
+  if (nb) nb.classList.add('active');
+  const ann = document.getElementById('sr-announcer');
+  if (ann) ann.textContent = name + ' page';
+  if (name === 'config') renderMuscleMap();
+  if (name === 'history') renderHistory();
+  if (name === 'food') renderFood();
+  const body = document.getElementById('main-content');
+  if (body) body.scrollTop = 0;
+}
+
+const KIT_ITEMS = {
+  'Dumbbells': [
+    {id:'db-min', label:'Lightest pair', unit:'kg', placeholder:'e.g. 8'},
+    {id:'db-max', label:'Heaviest pair', unit:'kg', placeholder:'e.g. 32'},
+    {id:'db-note', label:'Other pairs', unit:'', placeholder:'e.g. 10, 14, 20'},
+  ],
+  'Kettlebells': [
+    {id:'kb-1', label:'KB 1', unit:'kg', placeholder:'e.g. 6'},
+    {id:'kb-2', label:'KB 2', unit:'kg', placeholder:'e.g. 16'},
+    {id:'kb-3', label:'KB 3', unit:'kg', placeholder:'e.g. 24'},
+    {id:'kb-4', label:'KB 4 (if any)', unit:'kg', placeholder:'e.g. 32'},
+  ],
+  'Barbell': [
+    {id:'bar-weight', label:'Bar weight', unit:'kg', placeholder:'e.g. 20'},
+    {id:'bar-plates', label:'Plates available', unit:'', placeholder:'e.g. 2×10, 2×5, 2×2.5'},
+    {id:'bar-max', label:'Max loaded', unit:'kg', placeholder:'e.g. 80'},
+  ],
+  'Other': [
+    {id:'bench-type', label:'Bench type', unit:'', placeholder:'e.g. flat + incline'},
+    {id:'other-1', label:'Resistance band', unit:'', placeholder:'e.g. light, medium'},
+    {id:'other-2', label:'Other kit 2', unit:'', placeholder:''},
+  ]
+};
+
+// ─── WEEK STRIP ──────────────────────────────────────────────
+function renderWeekStrip() {
+  const strip = document.getElementById('week-strip');
+  if (!strip) return;
+  const today = getTodayStr();
+  strip.innerHTML = DAYS.map((d, i) => {
+    const dStr = getDayDateStr(i);
+    const ev = getWCEvent(dStr);
+    const isTdy = dStr === today;
+    const isActive = i === activeDay;
+    const wcBorder = wcMode && ev ? 'border-color:#c8102e;' : '';
+    const todayGlow = isTdy ? 'box-shadow:0 0 0 2px var(--accent);' : '';
+    const tag = wcMode && ev ? ev.icon : d.type.toUpperCase();
+    const todayEl = isTdy ? '<span class="day-today">TODAY</span>' : '';
+    return '<button type="button"'
+      + ' class="day-btn type-' + d.type + (isActive ? ' active' : '') + '"'
+      + ' onclick="selectDay(' + i + ')"'
+      + ' style="' + wcBorder + todayGlow + '"'
+      + ' aria-label="' + d.name + (isTdy ? ' today' : '') + '"'
+      + ' aria-pressed="' + isActive + '">'
+      + '<span class="day-abbr">' + d.abbr + '</span>'
+      + '<span class="day-session">' + d.session + '</span>'
+      + '<span class="day-tag">' + tag + '</span>'
+      + todayEl
+      + '</button>';
+  }).join('');
+}
+
+function selectDay(i) {
+  activeDay = i;
+  openExercise = null;
+  openDetail = null;
+  renderWeekStrip();
+  renderDayDetail(i);
+}
+
+// ─── DAY DETAIL ──────────────────────────────────────────────
+function switchTab(tab, idx) {
+  const panels = ['workout-panel', 'meals-panel'];
+  switchCardTab(tab, panels[idx] || panels[0]);
+}
+
+function renderDayDetail(i) {
+  const container = document.getElementById('day-card-container');
+  if (!container) return;
+  const d = DAYS[i] || DAYS[0];
+  const t = calcTargets();
+  const isRest = d.type === 'rest';
+  const targetKcal = isRest ? t.restKcal : t.trainKcal;
+  const dStr = getDayDateStr(i);
+  const today = getTodayStr();
+  const isToday = dStr === today;
+  const wcEv = getWCEvent(dStr);
+
+  const badgeClass = d.type === 'train' ? 'badge-train' : d.type === 'rest' ? 'badge-rest' : 'badge-flex';
+  const hasOverhead = d.zones && Object.values(d.zones).flat().some(id => EXERCISES[id] && EXERCISES[id].overhead);
+
+  let badges = '<span class="badge ' + badgeClass + '">' + d.type.toUpperCase() + '</span>';
+  if (d.session && d.session !== 'OFF' && d.session !== 'FLEX') badges += ' <span class="badge badge-session">Session ' + d.session + '</span>';
+  if (hasOverhead) badges += ' <span class="badge badge-overhead">Overhead seated</span>';
+  if (isToday) badges += ' <span class="badge badge-today">Today</span>';
+
+  const wcNote = wcMode && wcEv
+    ? '<div class="wc-day-note">' + wcEv.icon + ' <strong>' + wcEv.label + '</strong> — ' + wcEv.note + (wcEv.kickoff ? ' Kick-off: ' + wcEv.kickoff + ' BST.' : '') + '</div>'
+    : '';
+
+  // Build workout HTML
+  let workoutHtml = wcNote;
+  if (d.zones) {
+    const zoneNames = { heavy: 'Heavy', support: 'Supporting', core: 'Core' };
+    for (const zone of ['heavy','support','core']) {
+      const exIds = d.zones[zone];
+      if (!exIds || !exIds.length) continue;
+      workoutHtml += '<div class="zone-header">' + zoneNames[zone] + '</div><div class="ex-list">';
+      for (const id of exIds) {
+        const ex = EXERCISES[id];
+        if (!ex) continue;
+        const isOpen = openExercise === id;
+        const gate = checkProgressionGate(id);
+        const progBadge = gate ? '<span class="progress-badge">&#x2192; Progress</span>' : '';
+        workoutHtml += buildExerciseCard(id, ex, zone, isOpen, progBadge);
+      }
+      workoutHtml += '</div>';
+    }
+  } else {
+    workoutHtml += '<p style="color:var(--ink2);font-size:13px;line-height:1.7;">Full rest. No training. Eat well, sleep well.</p>';
+  }
+
+  // Build meals HTML
+  const meals = d.meals.map(m => scaleMeal(m, targetKcal, isRest));
+  const totals = meals.reduce((acc,m) => ({
+    kcal: acc.kcal + m.kcal, prot: acc.prot + m.prot,
+    carb: acc.carb + m.carb, fat: acc.fat + m.fat
+  }), {kcal:0,prot:0,carb:0,fat:0});
+  const mealsHtml = meals.map(m =>
+    '<div class="meal-card">' +
+    '<div class="meal-time">' + m.time + '</div>' +
+    '<div><div class="meal-name">' + m.name + '</div>' +
+    '<div class="meal-desc">' + m.desc + '</div>' +
+    '<div class="meal-prot-badge">' + m.prot + 'g protein</div></div>' +
+    '<div class="meal-macros"><div class="meal-kcal">' + m.kcal + '</div><div class="meal-prot">' + m.prot + 'g P</div></div>' +
+    '</div>'
+  ).join('');
+
+  container.innerHTML =
+    '<div class="day-card">' +
+    '<div class="day-card-header">' +
+    '<div class="dch-title">' + d.label + ' — ' + d.name + '</div>' +
+    '<div class="dch-desc">' + d.desc + '</div>' +
+    '<div class="dch-badges">' + badges + '</div>' +
+    '</div>' +
+    '<div class="card-tabs">' +
+    '<button type="button" class="card-tab ' + (activeCardTab==='workout-panel'?'active':'') + '" onclick="switchTab(this,0)">Workout</button>' +
+    '<button type="button" class="card-tab ' + (activeCardTab==='meals-panel'?'active':'') + '" onclick="switchTab(this,1)">Meals</button>' +
+    '</div>' +
+    '<div class="card-panel ' + (activeCardTab==='workout-panel'?'active':'') + '" id="workout-panel">' + workoutHtml + '</div>' +
+    '<div class="card-panel ' + (activeCardTab==='meals-panel'?'active':'') + '" id="meals-panel">' +
+    '<div class="meal-list">' + mealsHtml + '</div>' +
+    '<div class="totals-bar">' +
+    '<div class="total-cell"><div class="total-num t-k">' + totals.kcal + '</div><div class="total-lbl">kcal</div></div>' +
+    '<div class="total-cell"><div class="total-num t-p">' + totals.prot + 'g</div><div class="total-lbl">protein</div></div>' +
+    '<div class="total-cell"><div class="total-num t-c">' + totals.carb + 'g</div><div class="total-lbl">carbs</div></div>' +
+    '<div class="total-cell"><div class="total-num t-f">' + totals.fat + 'g</div><div class="total-lbl">fat</div></div>' +
+    '</div></div>' +
+    '</div>';
+}
+
+function buildExerciseCard(id, ex, zone, isOpen, progBadge) {
+  const logs = getSessionLogs();
+  const log = logs[id] || {};
+  const schemeMatch = ex.scheme.match(/(\d+)×(\d+)/);
+  const defaultSets = schemeMatch ? parseInt(schemeMatch[1]) : 3;
+  const defaultReps = schemeMatch ? parseInt(schemeMatch[2]) : 10;
+  const sets = log.sets && log.sets.length ? log.sets : Array(defaultSets).fill(null).map(() => ({ weight: log.lastWeight || '', reps: defaultReps, logged: false }));
+  const feel = log.feel || '';
+
+  const _logData = logs[id];
+  const isLogged = _logData && _logData.lastLogged && _logData.sets && _logData.sets.some(function(s){return s.logged;});
+  const loggedBadge = isLogged ? '<span class="logged-badge">&#x2713; ' + (_logData.lastLogged||'') + '</span>' : '';
+
+  const tags = (ex.compound ? '<span class="ex-tag ex-tag-compound">Compound</span>' : '') +
+               (ex.overhead ? '<span class="ex-tag ex-tag-overhead">Seated</span>' : '');
+
+  let detailHtml = '';
+  if (isOpen) {
+    // Form walkthrough
+    const steps = ex.steps.map((s,n) => '<div class="wt-step"><span class="wt-num">' + (n+1) + '</span><span class="wt-text">' + s + '</span></div>').join('');
+    // Set logger rows
+    const setRows = sets.map((s,idx) =>
+      '<div class="set-row">' +
+      '<span class="set-num">Set ' + (idx+1) + '</span>' +
+      '<button type="button" class="weighted-toggle ' + (s.weighted===false?'bw':'wt') + '" data-exid="' + id + '" data-idx="' + idx + '" onclick="handleWeightedToggle(this)" aria-label="Toggle weighted/bodyweight">' + (s.weighted===false ? '&#x1F9B5; BW' : '&#x2696; Wtd') + '</button>' +
+      (s.weighted===false ? '' : '<input type="number" class="set-input w-input" value="' + (s.weight||'') + '" placeholder="kg" step="0.5" min="0" aria-label="Set ' + (idx+1) + ' weight" data-exid="' + id + '" data-idx="' + idx + '" data-field="weight" onchange="handleSetInput(this)">') +
+      '<input type="number" class="set-input r-input" value="' + (s.reps||defaultReps) + '" placeholder="reps" min="1" aria-label="Set ' + (idx+1) + ' reps" data-exid="' + id + '" data-idx="' + idx + '" data-field="reps" onchange="handleSetInput(this)">' +
+      '<span class="set-unit">reps</span>' +
+      '<button type="button" class="set-done ' + (s.logged?'logged':'') + '" data-exid="' + id + '" data-idx="' + idx + '" onclick="handleSetDone(this)">' + (s.logged ? '&#x2713; Done' : 'Done') + '</button>' +
+      '</div>'
+    ).join('');
+    // Comfort row
+    const isTimed = TIMED_EXERCISES.hasOwnProperty(id);
+    const feels = isTimed ? ['Easy','Hard','Failure'] : ['New','Learning','Comfortable','Strong'];
+    const feelClasses = isTimed ? ['f-comfortable','f-learning','f-new'] : ['f-new','f-learning','f-comfortable','f-strong'];
+    const feelBtns = feels.map((f,i) => '<button type="button" class="feel-btn ' + feelClasses[i] + (feel===f?' active':'') + '" data-exid="' + id + '" data-feel="' + f + '" onclick="handleFeel(this)">' + f + '</button>').join('');
+    // Gate hint
+    const gate = checkProgressionGate(id);
+    const hintHtml = gate
+      ? '<div class="progress-hint-box visible">' +
+        (gate.newWeight ? '<strong>&#x2192; ' + gate.newWeight + 'kg</strong> — ' : '') + gate.msg +
+        (gate.newWeight ? ' <button type="button" data-exid="' + id + '" onclick="handleAccept(this)" style="margin-left:8px;background:var(--green);color:#fff;border:none;border-radius:5px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;">Accept</button>' : '') +
+        '</div>'
+      : '';
+
+    detailHtml = '<div class="ex-detail-panel"><div class="ex-detail-inner">' +
+      '<div class="ex-walkthrough"><div class="wt-title">Form</div><div class="wt-steps">' + steps + '</div></div>' +
+      '<div class="ex-cue">&#x1F4A1; ' + ex.cue + '</div>' +
+      (ex.detail ?
+        '<button type="button" class="more-detail-btn" onclick="event.stopPropagation();toggleDetail(\'' + id + '\')">' +
+        (openDetail === id ? '&#x25B2; Less detail' : '&#x25BC; More detail') +
+        '</button>' +
+        (openDetail === id ?
+          '<div class="ex-detail-expanded">' + ex.detail + '</div>' : '')
+        : '') +
+      (TIMED_EXERCISES.hasOwnProperty(id) && TIMED_EXERCISES[id] ?
+        '<div class="inline-timer" id="timer-' + id + '">' +
+        '<div class="timer-display" id="timer-disp-' + id + '">' + Math.floor(TIMED_EXERCISES[id]/60).toString().padStart(2,"0") + ":" + (TIMED_EXERCISES[id]%60).toString().padStart(2,"0") + '</div>' +
+        '<button type="button" class="timer-start-btn" data-exid="' + id + '" data-duration="' + TIMED_EXERCISES[id] + '" onclick="handleTimerStart(this)">&#x25B6; Start</button>' +
+        '</div>'
+        : '') +
+      '<div class="session-logger">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
+      '<div class="logger-title" style="margin-bottom:0;">Log this session</div>' +
+      (BODYWEIGHT_EXERCISES.has(id) ? '' :
+        '<button type="button" class="perside-toggle ' + (log.perSide ? "active" : "") + '" data-exid="' + id + '" onclick="handlePerSideToggle(this)">' +
+        (log.perSide ? "Per side" : "Total") + '</button>'
+      ) +
+      '</div>' +
+      '<div class="set-rows">' + setRows + '</div>' +
+      '<div class="feel-row"><span class="feel-label">How did it feel?</span>' + feelBtns + '</div>' +
+      '<button type="button" class="save-session-btn" data-exid="' + id + '" onclick="handleSave(this)">Save session</button>' +
+      hintHtml +
+      '</div></div></div>';
+  }
+
+  return '<div class="ex-row ' + (isOpen?'open':'') + '" id="ex-' + id + '">' +
+    '<div class="ex-row-head">' +
+    '<button type="button" class="ex-toggle-btn" data-exid="' + id + '" onclick="handleToggleEx(this)" aria-expanded="' + isOpen + '" aria-label="' + ex.name + '">' +
+    '<div class="ex-zone-bar zone-' + zone + '"></div>' +
+    '<div class="ex-info"><div class="ex-name">' + ex.name + '</div><div class="ex-tags">' + tags + '</div></div>' +
+    '</button>' +
+    '<div class="ex-right">' +
+    '<span class="ex-scheme">' + ex.scheme + '</span>' +
+    progBadge +
+    loggedBadge +
+    '</div>' +
+    '</div>' +
+    '<svg class="ex-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>' +
+    '</button>' +
+    detailHtml +
+    '</div>';
+}
+
+
+
+function buildPrevPanel(day) {
+  if (!day || day.type === 'rest') return '<p style="color:var(--ink3);font-size:13px;padding:8px 0;">Rest day — no session to show.</p>';
+  const session = day.session;
+  const history = getHistory();
+  const matches = history.filter(function(h){ return h.session === session; });
+  if (!matches.length) return '<p style="color:var(--ink3);font-size:13px;padding:8px 0;">No previous ' + session + ' sessions logged yet.</p>';
+  return matches.map(function(h) {
+    const feelColour = {Easy:'var(--green)',Hard:'var(--gold)',Failure:'var(--accent)'}[h.feel] || 'var(--ink3)';
+    const exRows = h.exercises.map(function(ex) {
+      const fc = {New:'var(--accent)',Learning:'var(--gold)',Comfortable:'var(--green)',Strong:'var(--blue)',Easy:'var(--green)',Hard:'var(--gold)',Failure:'var(--accent)'}[ex.feel] || 'var(--ink3)';
+      return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">' +
+        '<span style="font-size:12px;color:var(--ink2);">' + ex.name + '</span>' +
+        '<span style="font-size:11px;font-family:var(--syne);font-weight:700;">' +
+        ex.sets + '×' + ex.reps + (ex.weight ? ' @ ' + ex.weight + 'kg' : '') +
+        ' <span style="color:' + fc + ';">' + (ex.feel||'') + '</span></span>' +
+        '</div>';
+    }).join('');
+    return '<div style="margin-bottom:16px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
+      '<span style="font-family:var(--syne);font-weight:700;font-size:13px;">' + h.date + '</span>' +
+      '<div style="display:flex;gap:8px;">' +
+      (h.duration ? '<span style="font-size:11px;color:var(--ink3);">' + h.duration + '</span>' : '') +
+      '<span style="font-size:11px;font-weight:700;color:' + feelColour + ';">' + h.feel + '</span>' +
+      '</div></div>' +
+      exRows +
+      '</div>';
+  }).join('<hr style="border:none;border-top:2px solid var(--border);margin:16px 0;">');
+}
+
+function toggleDetail(exId) {
+  openDetail = openDetail === exId ? null : exId;
+  renderDayDetail(activeDay);
+}
+
+function toggleEx(id) {
+  openExercise = openExercise === id ? null : id;
+  renderDayDetail(activeDay);
+  if (openExercise) {
+    setTimeout(() => { const el = document.getElementById('ex-' + id); if (el) el.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 50);
+  }
+}
+
+function switchCardTab(tab, panelId) {
+  const card = tab.closest('.day-card');
+  card.querySelectorAll('.card-tab').forEach(t => t.classList.remove('active'));
+  card.querySelectorAll('.card-panel').forEach(p => p.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+  activeCardTab = panelId;
+}
+
+// ─── SESSION LOGGING ─────────────────────────────────────────
+function initExerciseLogs(id) {
+  const logs = getSessionLogs();
+  if (!logs[id]) {
+    const ex = EXERCISES[id];
+    const m = ex && ex.scheme ? ex.scheme.match(/(\d+)×(\d+)/) : null;
+    const defaultSets = m ? parseInt(m[1]) : 3;
+    const defaultReps = m ? parseInt(m[2]) : 10;
+    logs[id] = {
+      sets: Array(defaultSets).fill(null).map(() => ({ weight: 0, reps: defaultReps, logged: false, weighted: true })),
+      feel: '',
+      sessionsAtWeight: 0,
+      lastWeight: 0,
+      lastLogged: null
+    };
+    saveSessionLogs(logs);
+  }
+  return logs[id];
+}
+
+
+
+
+// ─── FORM MODAL ───────────────────────────────────────────────
+
+
+
+// ─── INLINE TIMER ─────────────────────────────────────────────
+const activeTimers = {};
+
+function handleTimerStart(btn) {
+  const exId = btn.dataset.exid;
+  const duration = parseInt(btn.dataset.duration);
+  if (activeTimers[exId]) {
+    clearInterval(activeTimers[exId]);
+    delete activeTimers[exId];
+    const disp = document.getElementById('timer-disp-' + exId);
+    const mins = Math.floor(duration/60).toString().padStart(2,'0');
+    const secs = (duration%60).toString().padStart(2,'0');
+    if (disp) { disp.textContent = mins + ':' + secs; disp.className = 'timer-display'; }
+    btn.textContent = '\u25B6 Start';
+    btn.classList.remove('running');
+    return;
+  }
+  let remaining = duration;
+  btn.textContent = '\u23F9 Stop';
+  btn.classList.add('running');
+  const disp = document.getElementById('timer-disp-' + exId);
+  if (disp) disp.className = 'timer-display running';
+  activeTimers[exId] = setInterval(function() {
+    remaining--;
+    const mins = Math.floor(remaining/60).toString().padStart(2,'0');
+    const secs = (remaining%60).toString().padStart(2,'0');
+    if (disp) disp.textContent = mins + ':' + secs;
+    if (remaining <= 0) {
+      clearInterval(activeTimers[exId]);
+      delete activeTimers[exId];
+      if (disp) { disp.textContent = 'Done!'; disp.className = 'timer-display done'; }
+      btn.textContent = '\u25B6 Again';
+      btn.classList.remove('running');
+      btn.dataset.duration = duration;
+      remaining = duration;
+      try { window.navigator.vibrate && window.navigator.vibrate([200,100,200]); } catch(e) {}
+    }
+  }, 1000);
+}
+
+// ─── PER SIDE TOGGLE ──────────────────────────────────────────
+function handlePerSideToggle(btn) {
+  const exId = btn.dataset.exid;
+  initExerciseLogs(exId);
+  const logs = getSessionLogs();
+  if (!logs[exId]) return;
+  logs[exId].perSide = !logs[exId].perSide;
+  saveSessionLogs(logs);
+  openExercise = exId;
+  renderDayDetail(activeDay);
+}
+
+// ─── DATE DEDUP: only increment sessionsAtWeight once per day ──
+function saveExerciseSession(exId) {
+  const logs = getSessionLogs();
+  initExerciseLogs(exId);
+  const ex = logs[exId];
+  const validSets = ex.sets.filter(function(s) { return s.reps > 0; });
+  if (!validSets.length) { alert('Log at least one set of reps first.'); return; }
+  const avgWeight = validSets.reduce(function(a,s){return a+s.weight;},0) / validSets.length;
+  const prevWeight = ex.lastWeight || 0;
+  const today = getTodayStr();
+  const alreadyLoggedToday = ex.lastLogged === today;
+  if (!alreadyLoggedToday) {
+    if (Math.abs(avgWeight - prevWeight) < 0.1) {
+      ex.sessionsAtWeight = (ex.sessionsAtWeight || 0) + 1;
+    } else {
+      ex.sessionsAtWeight = 1;
+    }
+  }
+  ex.lastWeight = avgWeight;
+  ex.lastLogged = today;
+  logs[exId] = ex;
+  saveSessionLogs(logs);
+  renderDayDetail(activeDay);
+  renderMuscleMap();
+}
+
+function handleShop(btn) { toggleShop(btn.dataset.key, btn); }
+function handleKitChange(el) { saveKitItem(el.dataset.kitid, el.value); }
+function handleSave(btn) { saveExerciseSession(btn.dataset.exid); }
+function handleToggleEx(btn) { toggleEx(btn.dataset.exid); }
+function handleFeel(btn) {
+  setFeel(btn.dataset.exid, btn.dataset.feel, btn);
+}
+function handleAccept(btn) {
+  acceptProgression(btn.dataset.exid);
+}
+
+
+function handleWeightedToggle(btn) {
+  const exId = btn.dataset.exid;
+  const idx = parseInt(btn.dataset.idx);
+  initExerciseLogs(exId);
+  const logs = getSessionLogs();
+  const set = logs[exId] && logs[exId].sets ? logs[exId].sets[idx] : null;
+  if (!set) return;
+  set.weighted = set.weighted === false ? true : false;
+  logs[exId].sets[idx] = set;
+  saveSessionLogs(logs);
+  // Re-render just this exercise card
+  openExercise = exId;
+  renderDayDetail(activeDay);
+}
+
+function handleSetInput(el) {
+  updateSetField(el.dataset.exid, parseInt(el.dataset.idx), el.dataset.field, el.value);
+}
+function handleSetDone(btn) {
+  toggleSetDone(btn.dataset.exid, parseInt(btn.dataset.idx), btn);
+}
+
+function updateSetField(exId, setIdx, field, val) {
+  const logs = getSessionLogs();
+  initExerciseLogs(exId);
+  const ex = logs[exId] || getSessionLogs()[exId];
+  if (!ex.sets[setIdx]) ex.sets[setIdx] = { weight: 0, reps: 10, logged: false };
+  ex.sets[setIdx][field] = field === 'reps' ? parseInt(val) : parseFloat(val);
+  logs[exId] = ex;
+  saveSessionLogs(logs);
+}
+
+function toggleSetDone(exId, setIdx, btn) {
+  const logs = getSessionLogs();
+  initExerciseLogs(exId);
+  if (!logs[exId].sets[setIdx]) return;
+  logs[exId].sets[setIdx].logged = !logs[exId].sets[setIdx].logged;
+  saveSessionLogs(logs);
+  btn.classList.toggle('logged', logs[exId].sets[setIdx].logged);
+  btn.innerHTML = logs[exId].sets[setIdx].logged ? '&#x2713; Done' : 'Done';
+}
+
+function setFeel(exId, feel, btn) {
+  const logs = getSessionLogs();
+  initExerciseLogs(exId);
+  logs[exId].feel = feel;
+  saveSessionLogs(logs);
+  const row = btn.closest('.feel-row');
+  row.querySelectorAll('.feel-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ─── CONFIG / KIT ────────────────────────────────────────────
+function renderKit() {
+  const kit = getKit();
+  let html = '<div class="config-grid">';
+  for (const [section, items] of Object.entries(KIT_ITEMS)) {
+    for (const item of items) {
+      const val = kit[item.id] || '';
+      html += '<div class="config-card">' +
+        '<div class="config-card-label">' + section + ' — ' + item.label + '</div>' +
+        '<div class="config-row">' +
+        '<input class="config-input" type="text" value="' + val + '" placeholder="' + item.placeholder + '" aria-label="' + item.label + '" data-kitid="' + item.id + '" onchange="handleKitChange(this)">' +
+        (item.unit ? '<span class="config-unit">' + item.unit + '</span>' : '') +
+        '</div></div>';
+    }
+  }
+  html += '</div>';
+  const el = document.getElementById('kit-content');
+  if (el) el.innerHTML = html;
+}
+
+function saveKitItem(id, val) {
+  const kit = getKit();
+  kit[id] = val;
+  saveKit(kit);
+}
+
+// ─── MUSCLE MAP ──────────────────────────────────────────────
+function renderMuscleMap() {
+  const el = document.getElementById('muscle-map');
+  if (!el) return;
+  el.innerHTML = Object.entries(MUSCLE_MAP).map(([muscle, exIds]) => {
+    const score = calcMuscleScore(muscle);
+    const pct = score * 10;
+    const fillClass = pct < 30 ? 'm-low' : pct < 60 ? 'm-mid' : 'm-high';
+    const scoreTxt = score === 0 ? 'Not logged' : score.toFixed(1) + ' / 10';
+    const exNames = exIds.map(id => EXERCISES[id] ? EXERCISES[id].name : id).join(', ');
+    return '<div class="muscle-card">' +
+      '<div class="muscle-name">' + muscle + '</div>' +
+      '<div class="muscle-bar-track"><div class="muscle-bar-fill ' + fillClass + '" style="width:' + pct + '%"></div></div>' +
+      '<div class="muscle-score">' + (score === 0 ? '—' : score.toFixed(1)) + '</div>' +
+      '<div class="muscle-score-label">' + scoreTxt + '</div>' +
+      '<div class="muscle-exercises">' + exNames + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+// ─── SHOPPING ────────────────────────────────────────────────
+function renderShopping() {
+  const checked = getShopChecked();
+  let html = '';
+  for (const [cat, items] of Object.entries(SHOPPING)) {
+    html += '<div class="shop-category"><div class="shop-cat-title">' + cat + '</div><div class="shop-items">';
+    items.forEach((item, i) => {
+      const key = cat + i;
+      const isChecked = !!checked[key];
+      html += '<button type="button" class="shop-item ' + (isChecked?'checked':'') + '" data-key="' + key + '" onclick="handleShop(this)" aria-pressed="' + isChecked + '">' +
+        '<span class="shop-check">' + (isChecked ? '&#x2713;' : '') + '</span>' +
+        '<span class="shop-name">' + item.name + '</span>' +
+        '<span class="shop-qty">' + item.qty + '</span>' +
+        '</button>';
+    });
+    html += '</div></div>';
+  }
+  const shopEl = document.getElementById('food-shop-content'); if (shopEl) shopEl.innerHTML = html;
+}
+
+function toggleShop(key, btn) {
+  const checked = getShopChecked();
+  checked[key] = !checked[key];
+  saveShopChecked(checked);
+  btn.classList.toggle('checked', checked[key]);
+  btn.setAttribute('aria-pressed', checked[key]);
+  btn.querySelector('.shop-check').innerHTML = checked[key] ? '&#x2713;' : '';
+}
+
+// ─── COOKOFF / PRINCIPLES ────────────────────────────────────
+function renderCookoff() {
+  const coEl = document.getElementById('food-cook-content'); if (coEl) coEl.innerHTML = COOKOFF.map(c =>
+    '<div class="cookoff-card">' +
+    '<div class="cookoff-day">' + c.day + '</div>' +
+    '<div><div class="cookoff-info-title">' + c.title + '</div>' +
+    '<div class="cookoff-desc">' + c.desc + '</div>' +
+    '<div class="cookoff-pills">' + c.portions.map(p => '<span class="cookoff-pill">' + p + '</span>').join('') + '</div>' +
+    '</div></div>'
+  ).join('');
+}
+
+function renderPrinciples() {
+  document.getElementById('principles-content').innerHTML = PRINCIPLES.map(p =>
+    '<div class="principle-card"><div class="pc-icon">' + p.icon + '</div><div class="pc-title">' + p.title + '</div><div class="pc-body">' + p.body + '</div></div>'
+  ).join('');
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+
+
+// ─── WC EVENTS DATA ──────────────────────────────────────────
+const WC_EVENTS = [
+  { date: '2026-06-12', type: 'personal', label: 'Wedding day', note: 'Wedding. You are not training. You are not tracking macros. Have a wonderful day.', icon: '&#x1F48D;', scale: null },
+  { date: '2026-06-13', type: 'personal', label: 'Download Festival', note: 'Download day 1. Walk a lot. Eat what you can. Stay hydrated.', icon: '&#x1F3B8;', scale: 0.7 },
+  { date: '2026-06-14', type: 'personal', label: 'Download Festival', note: 'Download day 2. Same deal — enjoy it.', icon: '&#x1F3B8;', scale: 0.7 },
+  { date: '2026-06-15', type: 'personal', label: 'Download Festival', note: 'Download day 3. Recovery walk home counts as cardio.', icon: '&#x1F3B8;', scale: 0.7 },
+  { date: '2026-06-17', type: 'england', label: 'England vs Croatia', note: 'England vs Croatia — 9pm UK. Scale the evening back or skip it. Watch the game.', icon: '&#x1F3F4;&#xDB40;&#xDC67;&#xDB40;&#xDC62;&#xDB40;&#xDC65;&#xDB40;&#xDC6E;&#xDB40;&#xDC67;&#xDB40;&#xDC7F;', kickoff: '21:00', scale: 0.6 },
+  { date: '2026-06-23', type: 'england', label: 'England vs Ghana', note: 'England vs Ghana — 9pm UK. Train in the morning if you want. Evening is for football.', icon: '&#x1F3F4;&#xDB40;&#xDC67;&#xDB40;&#xDC62;&#xDB40;&#xDC65;&#xDB40;&#xDC6E;&#xDB40;&#xDC67;&#xDB40;&#xDC7F;', kickoff: '21:00', scale: 0.6 },
+  { date: '2026-06-27', type: 'england', label: 'England vs Panama', note: 'England vs Panama — midnight UK. Late one. Saturday. Do not set an alarm.', icon: '&#x1F3F4;&#xDB40;&#xDC67;&#xDB40;&#xDC62;&#xDB40;&#xDC65;&#xDB40;&#xDC6E;&#xDB40;&#xDC67;&#xDB40;&#xDC7F;', kickoff: '00:00', scale: 0.5 },
+];
+
+// ─── STAT UPDATE FUNCTIONS ───────────────────────────────────
+function updateStats() {
+  const stEl = document.getElementById('cfg-weight-st');
+  if (!stEl) return;
+  stats.weightKg = stLbToKg(parseInt(stEl.value) || 15, parseInt(document.getElementById('cfg-lb').value) || 0);
+  stats.heightCm = parseInt(document.getElementById('cfg-height').value) || 196;
+  stats.bf = parseInt(document.getElementById('cfg-bf').value) || 18;
+  stats.sessions = parseInt(document.getElementById('cfg-sessions').value) || 5;
+  syncStatDisplays();
+}
+
+function updateFromInputs() {
+  const st = parseInt(document.getElementById('cfg-st').value) || 15;
+  const lb = parseInt(document.getElementById('cfg-lb').value) || 0;
+  stats.weightKg = stLbToKg(st, lb);
+  document.getElementById('cfg-weight-st').value = st;
+  document.getElementById('cfg-kg').value = stats.weightKg;
+  syncStatDisplays();
+}
+
+function updateFromKg() {
+  stats.weightKg = parseFloat(document.getElementById('cfg-kg').value) || 95.3;
+  const { st, lb } = kgToStLb(stats.weightKg);
+  document.getElementById('cfg-weight-st').value = st;
+  document.getElementById('cfg-st').value = st;
+  document.getElementById('cfg-lb').value = lb;
+  syncStatDisplays();
+}
+
+function syncStatDisplays() {
+  const { st, lb } = kgToStLb(stats.weightKg);
+  const { ft, inch } = cmToFtIn(stats.heightCm);
+  const wdEl = document.getElementById('cfg-weight-disp');
+  if (wdEl) wdEl.textContent = st + 'st ' + lb + 'lb / ' + stats.weightKg + 'kg';
+  const hdEl = document.getElementById('cfg-height-disp');
+  if (hdEl) hdEl.textContent = ft + 'ft ' + inch + 'in / ' + stats.heightCm + 'cm';
+  const bfEl = document.getElementById('cfg-bf-disp');
+  if (bfEl) bfEl.textContent = stats.bf + '%';
+  const sEl = document.getElementById('cfg-sessions-disp');
+  if (sEl) sEl.textContent = stats.sessions;
+  syncCalcDisplay();
+  renderDayDetail(activeDay);
+}
+
+// ─── WC MODE TOGGLE ──────────────────────────────────────────
+function toggleWCMode() {
+  wcMode = !wcMode;
+  const btn = document.getElementById('wc-toggle-btn');
+  if (btn) { btn.setAttribute('aria-pressed', wcMode); btn.classList.toggle('on', wcMode); }
+  const banner = document.getElementById('wc-banner-inline');
+  if (banner) {
+    if (wcMode) {
+      const today = getTodayStr();
+      banner.innerHTML =
+        '<div class="wc-banner-title">&#x1F3F4; England &#x2014; Group L</div>' +
+        '<div class="wc-banner-sub">All times BST</div>' +
+        '<div class="wc-fixture' + (today==='2026-06-17'?' tonight':'') + '"><span class="wc-fixture-match">vs Croatia</span><span class="wc-fixture-time">17 Jun 21:00</span></div>' +
+        '<div class="wc-fixture' + (today==='2026-06-23'?' tonight':'') + '"><span class="wc-fixture-match">vs Ghana</span><span class="wc-fixture-time">23 Jun 21:00</span></div>' +
+        '<div class="wc-fixture' + (today==='2026-06-27'?' tonight':'') + '"><span class="wc-fixture-match">vs Panama</span><span class="wc-fixture-time">27 Jun 00:00</span></div>';
+      banner.classList.add('show');
+    } else {
+      banner.classList.remove('show');
+      banner.innerHTML = '';
+    }
+  }
+  renderWeekStrip();
+  renderDayDetail(activeDay);
+}
+
+// ─── DATE / WC HELPERS ───────────────────────────────────────
+function getTodayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function getDayDateStr(i) {
+  const today = new Date();
+  const dsm = today.getDay() === 0 ? 6 : today.getDay() - 1;
+  const mon = new Date(today);
+  mon.setDate(today.getDate() - dsm + i);
+  return mon.toISOString().slice(0, 10);
+}
+
+function getTodayDayIndex() {
+  const d = new Date().getDay();
+  return d === 0 ? 6 : d - 1;
+}
+
+function getWCEvent(dateStr) {
+  return WC_EVENTS.find(e => e.date === dateStr) || null;
+}
+
+// ─── CALC DISPLAY SYNC ───────────────────────────────────────
+function syncCalcDisplay() {
+  const t = calcTargets();
+  document.getElementById('calc-tdee').textContent = t.tdee.toLocaleString() + ' kcal';
+  document.getElementById('calc-train').textContent = t.trainKcal.toLocaleString() + ' kcal';
+  document.getElementById('calc-rest').textContent = t.restKcal.toLocaleString() + ' kcal';
+  document.getElementById('calc-prot').textContent = t.protein + 'g / day';
+  document.getElementById('calc-water-train').textContent = t.waterTrain.toFixed(1) + 'L';
+  document.getElementById('calc-water-rest').textContent = t.waterRest.toFixed(1) + 'L';
+  const sub = document.getElementById('week-sub');
+  if (sub) sub.textContent = 'Training: ' + t.trainKcal.toLocaleString() + ' kcal  ·  Protein: ' + t.protein + 'g  ·  Tap a day for session + meals.';
+}
+
+
+// ─── EXPORT / IMPORT ─────────────────────────────────────────
+function exportData() {
+  const payload = {
+    version: 2,
+    exported: new Date().toISOString(),
+    sessionLogs: getSessionLogs(),
+    kit: getKit(),
+    shopping: getShopChecked(),
+    history: getHistory(),
+    stats: stats
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = 'the-plan-backup-' + dateStr + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importData() {
+  document.getElementById('import-file-input').click();
+}
+
+function handleImportFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.version || !data.sessionLogs) {
+        alert('File does not look like a valid Plan backup.');
+        return;
+      }
+      if (!confirm('Import this backup from ' + (data.exported ? data.exported.slice(0,10) : 'unknown date') + '? This will overwrite your current logs, kit, shopping list and history.')) return;
+      saveSessionLogs(data.sessionLogs);
+      if (data.kit) saveKit(data.kit);
+      if (data.shopping) saveShopChecked(data.shopping);
+      if (data.history) saveHistory(data.history);
+      if (data.stats) {
+        stats = data.stats;
+        syncStatDisplays();
+      }
+      renderMuscleMap();
+      renderKit();
+      renderDayDetail(activeDay);
+      renderHistory();
+      alert('Backup restored.');
+    } catch(err) {
+      alert('Could not read file: ' + err.message);
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+
+// ─── SESSION TIMER ────────────────────────────────────────────
+let sessionStartTime = null;
+let sessionTimerInterval = null;
+
+function startSession() {
+  sessionStartTime = Date.now();
+  document.getElementById('start-session-btn').style.display = 'none';
+  const bar = document.getElementById('session-timer-bar');
+  bar.style.display = 'flex';
+  sessionTimerInterval = setInterval(function() {
+    const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+    const mins = Math.floor(elapsed / 60).toString().padStart(2,'0');
+    const secs = (elapsed % 60).toString().padStart(2,'0');
+    const el = document.getElementById('session-timer-display');
+    if (el) el.textContent = mins + ':' + secs;
+  }, 1000);
+}
+
+function endSession() {
+  if (!sessionStartTime) return;
+  clearInterval(sessionTimerInterval);
+  const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+  const durationStr = mins + ' min' + (mins !== 1 ? 's' : '') + (secs > 0 ? ' ' + secs + 's' : '');
+  const modal = document.getElementById('session-end-modal');
+  const durEl = document.getElementById('modal-duration');
+  if (durEl) durEl.textContent = 'Duration: ' + durationStr;
+  if (modal) modal.style.display = 'flex';
+}
+
+function selectSessionFeel(btn) {
+  document.querySelectorAll('.modal-feel-btn').forEach(function(b) {
+    b.style.background = 'var(--surface)';
+    b.style.borderColor = 'var(--border2)';
+    b.style.color = 'var(--ink)';
+  });
+  btn.style.background = 'var(--accent)';
+  btn.style.borderColor = 'var(--accent)';
+  btn.style.color = '#fff';
+  const feel = btn.dataset.feel;
+  const day = DAYS[activeDay];
+  const session = day ? day.session : 'A';
+  const summary = SESSION_SUMMARIES[session];
+  if (summary) {
+    const box = document.getElementById('session-summary-box');
+    const txt = document.getElementById('session-summary-text');
+    const muscles = document.getElementById('session-muscles-text');
+    const soreness = document.getElementById('session-soreness-text');
+    if (txt) txt.textContent = summary[feel] || '';
+    if (muscles) muscles.textContent = 'Muscles worked: ' + summary.muscles;
+    if (soreness) soreness.textContent = 'What to expect: ' + summary.soreness;
+    if (box) box.style.display = 'block';
+  }
+  const closeBtn = document.getElementById('modal-close-btn');
+  if (closeBtn) closeBtn.style.display = 'block';
+  localStorage.setItem('plan-last-session-feel', feel);
+  lastSessionFeel = feel;
+}
+
+function closeSessionModal() {
+  const modal = document.getElementById('session-end-modal');
+  if (modal) modal.style.display = 'none';
+  sessionStartTime = null;
+  clearInterval(sessionTimerInterval);
+  const bar = document.getElementById('session-timer-bar');
+  if (bar) bar.style.display = 'none';
+  const btn = document.getElementById('start-session-btn');
+  if (btn) btn.style.display = 'block';
+  if (typeof lastSessionFeel !== 'undefined' && lastSessionFeel) {
+    const durEl = document.getElementById('modal-duration');
+    const dur = durEl ? durEl.textContent.replace('Duration: ','') : null;
+    saveSessionToHistory(lastSessionFeel, dur);
+    lastSessionFeel = null;
+  }
+}
+
+// ─── KIT-AWARE PROGRESSION ────────────────────────────────────
+function getOwnedDBWeights() {
+  const kit = getKit();
+  const weights = [];
+  const min = parseFloat(kit['db-min']);
+  const max = parseFloat(kit['db-max']);
+  const mid = parseFloat(kit['db-note']);
+  if (!isNaN(min)) weights.push(min);
+  if (!isNaN(mid) && mid !== min && mid !== max) weights.push(mid);
+  if (!isNaN(max)) weights.push(max);
+  weights.sort(function(a,b){return a-b;});
+  return weights;
+}
+
+function getOwnedKBWeights() {
+  const kit = getKit();
+  const weights = [];
+  for (let i = 1; i <= 4; i++) {
+    const v = parseFloat(kit['kb-' + i]);
+    if (!isNaN(v)) weights.push(v);
+  }
+  weights.sort(function(a,b){return a-b;});
+  return weights;
+}
+
+function findNextKitWeight(currentWeight, exId) {
+  const ex = EXERCISES[exId];
+  if (!ex) return null;
+  const name = (ex.name || '').toLowerCase();
+  const isKB = name.includes('kb') || name.includes('kettlebell') || exId.startsWith('kb-');
+  const weights = isKB ? getOwnedKBWeights() : getOwnedDBWeights();
+  if (!weights.length) return null;
+  const next = weights.find(function(w) { return w > currentWeight; });
+  if (next) return { weight: next, owned: true, msg: 'You own ' + next + 'kg — try that.' };
+  const common = isKB ? [16, 20, 24, 28, 32] : [10, 12, 15, 17.5, 20, 22.5, 25];
+  const nextCommon = common.find(function(w) { return w > currentWeight; });
+  if (nextCommon) return { weight: nextCommon, owned: false, msg: nextCommon + 'kg would be the next common weight — worth picking up a pair.' };
+  return null;
+}
+
+
+// ─── SESSION HISTORY ──────────────────────────────────────────
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem('plan-history') || '[]'); } catch(e) { return []; }
+}
+function saveHistory(h) { localStorage.setItem('plan-history', JSON.stringify(h)); }
+
+function saveSessionToHistory(feel, durationStr) {
+  const day = DAYS[activeDay];
+  if (!day || day.type === 'rest') return;
+  const logs = getSessionLogs();
+  const exercises = [];
+  if (day.zones) {
+    Object.values(day.zones).flat().forEach(function(exId) {
+      const log = logs[exId];
+      const ex = EXERCISES[exId];
+      if (!log || !ex) return;
+      const validSets = (log.sets || []).filter(function(s){ return s.reps > 0; });
+      if (!validSets.length) return;
+      const avgWeight = validSets.reduce(function(a,s){return a+(s.weight||0);},0) / validSets.length;
+      exercises.push({
+        name: ex.name,
+        sets: validSets.length,
+        reps: validSets[0].reps,
+        weight: avgWeight > 0 ? avgWeight : null,
+        feel: log.feel || ''
+      });
+    });
+  }
+  const session = day.session || 'A';
+  const summary = SESSION_SUMMARIES[session] || {};
+  const entry = {
+    date: getTodayStr(),
+    session: session,
+    label: 'Session ' + session + ' — ' + day.name,
+    duration: durationStr || null,
+    feel: feel,
+    summary: summary[feel] || '',
+    muscles: summary.muscles || '',
+    soreness: summary.soreness || '',
+    manual: false,
+    exercises: exercises
+  };
+  const history = getHistory();
+  const todayIdx = history.findIndex(function(h){ return h.date === getTodayStr() && h.session === session; });
+  if (todayIdx !== -1) history.splice(todayIdx, 1);
+  history.unshift(entry);
+  saveHistory(history);
+}
+
+
+function renderHistory() {
+  const el = document.getElementById('history-content');
+  if (!el) return;
+  const history = getHistory();
+  if (!history.length) {
+    el.innerHTML = '<p style="color:var(--ink3);font-size:13px;text-align:center;padding:40px 0;">No sessions logged yet. Complete a session to see it here.</p>';
+    return;
+  }
+  el.innerHTML = history.map(function(h, i) {
+    const feelColour = {Easy:'var(--green)',Hard:'var(--gold)',Failure:'var(--accent)'}[h.feel] || 'var(--ink3)';
+    const isOpen = openHistoryEntry === i;
+    const exRows = isOpen ? h.exercises.map(function(ex) {
+      const feelColour2 = {New:'var(--accent)',Learning:'var(--gold)',Comfortable:'var(--green)',Strong:'var(--blue)',Easy:'var(--green)',Hard:'var(--gold)',Failure:'var(--accent)'}[ex.feel] || 'var(--ink3)';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);">' +
+        '<span style="font-size:12px;color:var(--ink2);">' + ex.name + '</span>' +
+        '<span style="font-size:11px;font-family:var(--syne);font-weight:700;">' +
+        ex.sets + '×' + ex.reps + (ex.weight ? ' @ ' + ex.weight + 'kg' : '') +
+        ' <span style="color:' + feelColour2 + ';margin-left:6px;">' + (ex.feel||'') + '</span>' +
+        '</span></div>';
+    }).join('') : '';
+    const detailSection = isOpen ? (
+      '<div style="padding:12px 14px;border-top:1px solid var(--border);background:var(--surface2);">' +
+      '<div style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:10px;">' + (h.summary||'') + '</div>' +
+      '<div style="font-size:11px;color:var(--ink3);margin-bottom:4px;line-height:1.6;"><strong style="color:var(--ink2);">Muscles:</strong> ' + (h.muscles||'') + '</div>' +
+      '<div style="font-size:11px;color:var(--gold);line-height:1.6;margin-bottom:12px;"><strong>Soreness:</strong> ' + (h.soreness||'') + '</div>' +
+      (exRows ? '<div style="border-top:1px solid var(--border);padding-top:8px;">' + exRows + '</div>' : '') +
+      '</div>'
+    ) : '';
+    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px;">' +
+      '<button type="button" onclick="toggleHistoryEntry(' + i + ')" style="width:100%;background:none;border:none;padding:14px;text-align:left;cursor:pointer;touch-action:manipulation;display:flex;align-items:center;gap:12px;min-height:52px;">' +
+      '<div style="flex:1;">' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">' +
+      '<span style="font-family:var(--syne);font-weight:800;font-size:14px;">' + h.label + '</span>' +
+      (h.manual ? '<span style="font-size:9px;color:var(--ink3);border:1px solid var(--border2);border-radius:10px;padding:1px 6px;">manual</span>' : '') +
+      '</div>' +
+      '<div style="display:flex;gap:10px;align-items:center;">' +
+      '<span style="font-size:11px;color:var(--ink3);">' + h.date + '</span>' +
+      (h.duration ? '<span style="font-size:11px;color:var(--ink3);">· ' + h.duration + '</span>' : '') +
+      '<span style="font-size:11px;font-weight:700;color:' + feelColour + ';">· ' + (h.feel||'') + '</span>' +
+      '<span style="font-size:11px;color:var(--ink3);">· ' + h.exercises.length + ' exercises</span>' +
+      '</div></div>' +
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0;transform:rotate(' + (isOpen?'180':'0') + 'deg);transition:transform 0.2s;color:var(--ink3);"><polyline points="6 9 12 15 18 9"/></svg>' +
+      '</button>' +
+      detailSection +
+      '</div>';
+  }).join('');
+}
+
+let openHistoryEntry = null;
+function toggleHistoryEntry(i) {
+  openHistoryEntry = openHistoryEntry === i ? null : i;
+  renderHistory();
+}
+
+
+let activeFoodTab = 'shop';
+
+function setFoodTab(tab) {
+  activeFoodTab = tab;
+  const shopBtn = document.getElementById('food-tab-shop');
+  const cookBtn = document.getElementById('food-tab-cook');
+  const shopContent = document.getElementById('food-shop-content');
+  const cookContent = document.getElementById('food-cook-content');
+  if (tab === 'shop') {
+    if (shopBtn) { shopBtn.style.background='var(--accent)'; shopBtn.style.color='#fff'; shopBtn.style.border='none'; }
+    if (cookBtn) { cookBtn.style.background='var(--surface)'; cookBtn.style.color='var(--ink3)'; cookBtn.style.border='1px solid var(--border2)'; }
+    if (shopContent) shopContent.style.display='block';
+    if (cookContent) cookContent.style.display='none';
+  } else {
+    if (cookBtn) { cookBtn.style.background='var(--accent)'; cookBtn.style.color='#fff'; cookBtn.style.border='none'; }
+    if (shopBtn) { shopBtn.style.background='var(--surface)'; shopBtn.style.color='var(--ink3)'; shopBtn.style.border='1px solid var(--border2)'; }
+    if (shopContent) shopContent.style.display='none';
+    if (cookContent) cookContent.style.display='block';
+  }
+}
+
+function renderFood() {
+  renderShoppingInFood();
+  renderCookoffInFood();
+}
+
+function renderShoppingInFood() {
+  const checked = getShopChecked();
+  let html = '';
+  for (const [cat, items] of Object.entries(SHOPPING)) {
+    html += '<div class="shop-category"><div class="shop-cat-title">' + cat + '</div><div class="shop-items">';
+    items.forEach(function(item, i) {
+      const key = cat + i;
+      const isChecked = !!checked[key];
+      html += '<button type="button" class="shop-item ' + (isChecked?'checked':'') + '" data-key="' + key + '" onclick="handleShop(this)" aria-pressed="' + isChecked + '">' +
+        '<span class="shop-check">' + (isChecked?'&#x2713;':'') + '</span>' +
+        '<div style="flex:1;">' +
+        '<div class="shop-name">' + item.name + '</div>' +
+        (item.aldi ? '<div style="font-size:10px;color:var(--green);margin-top:2px;">&#x1F6D2; ' + item.aldi + '</div>' : '') +
+        '</div>' +
+        '<span class="shop-qty">' + item.qty + '</span>' +
+        '</button>';
+    });
+    html += '</div></div>';
+  }
+  const el = document.getElementById('food-shop-content');
+  if (el) el.innerHTML = html;
+}
+
+function renderCookoffInFood() {
+  const el = document.getElementById('food-cook-content');
+  if (!el) return;
+  el.innerHTML = COOKOFF.map(function(co) {
+    return '<div class="cookoff-card">' +
+      '<div class="cookoff-day">' + co.day + '</div>' +
+      '<div><div class="cookoff-info-title">' + co.title + '</div>' +
+      '<div class="cookoff-desc">' + co.desc + '</div>' +
+      '<div class="cookoff-pills">' + co.portions.map(function(p){ return '<span class="cookoff-pill">' + p + '</span>'; }).join('') + '</div>' +
+      '</div></div>';
+  }).join('');
+}
+
+(function init() {
+  syncCalcDisplay();
+  activeDay = getTodayDayIndex();
+  renderWeekStrip();
+  renderDayDetail(activeDay);
+  renderFood();
+  renderPrinciples();
+  renderKit();
+  renderMuscleMap();
+  renderHistory();
+
+  // Register service worker for PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  }
+})();
+
+// Passive touch listeners for Android scroll performance
+document.addEventListener('touchstart', function(){}, {passive: true});
+document.addEventListener('touchmove', function(){}, {passive: true});
+
+// Passive touch listeners
+document.addEventListener('touchstart', function(){}, {passive:true});
+document.addEventListener('touchmove', function(){}, {passive:true});
+
+</script>
+
+</body>
+</html>
