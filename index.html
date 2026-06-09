@@ -724,6 +724,7 @@ let wcMode = false;
 let activeDay = 0;
 let openExercise = null;
 let openDetail = null;
+let activeDateStr = '';
 let activeCardTab = 'workout-panel';
 
 // ─── MUSCLE GROUP MAP ────────────────────────────────────────
@@ -1386,6 +1387,19 @@ const EXERCISES = {
     cue: 'Seated removes the leg drive and makes this a pure shoulder press. The rack position of a KB is different to a dumbbell — the bell rests on your forearm and wrist, not in your palm. Get comfortable with the rack before adding weight.',
     detail: "The rack position is unfamiliar at first. The bell rests on the back of the forearm, not in the palm. The wrist should be straight — not bent back. Clean the bell to rack before pressing. Press straight up — not forward. At the top, the elbow fully locks out and the bicep is close to the ear. At your height, seated pressing removes the leg drive entirely, making this a pure shoulder test. If you are leaning away from the working side to press, the weight is too heavy. Non-working hand on the knee for stability, not braced on the bench."
   },
+  'incline-db-curl': {
+    name: 'Incline DB Curl', zone: 'support', compound: false, overhead: false,
+    scheme: '3×10', rest: '60s',
+    steps: [
+      'Set bench to 45-60 degrees incline. Sit back fully, arms hanging straight down from the shoulders.',
+      'The elbows should be behind the body — this is what makes this curl different. Do not let them drift forward.',
+      'Curl both DBs simultaneously, keeping the elbows pinned back throughout.',
+      'Squeeze hard at the top, lower fully — complete extension at the bottom is the whole point.',
+      'No swinging. If the elbows come forward, the weight is too heavy.'
+    ],
+    cue: 'The incline position puts the long head of the bicep under a stretch it never gets in a standing curl. The elbows behind the body is not a style choice — it is the mechanism. At full extension you should feel a strong bicep stretch. This is where the growth stimulus is. Most people never train the bicep in a lengthened position.',
+    detail: 'Common fault: letting the elbows drift forward as the weight gets heavier, which turns this into a standard curl and removes the stretch. The elbows must stay behind the plane of the torso throughout — if they are moving forward, reduce the weight. The incline angle matters: too upright and you lose the stretch, too flat and the shoulder takes over. 45-60 degrees is the sweet spot. At your height the bench arm length relative to your torso means you may need a slightly more upright angle than standard coaching suggests. Go slowly on the eccentric — 3 seconds down — the stretch at the bottom is where this exercise earns its place in the plan.'
+  },
   'kb-cross-body-clean': {
     name: 'Cross-Body KB Clean', zone: 'heavy', compound: true, overhead: false,
     scheme: '4x6 each', rest: '90s',
@@ -1447,7 +1461,7 @@ const DAYS = [
     abbr:'TUE', name:'Tuesday', type:'train', session:'B', label:'SESSION B',
     desc:'Lower focus — heavy hinge and squat patterns, upper pump support, adductor and tibialis work.',
     zones: {
-      heavy: ['rdl','lateral-lunge','bulgarian'],
+      heavy: ['rdl','lateral-lunge','bulgarian','incline-db-curl'],
       support: ['sumo-squat','floor-press','hammer-curl'],
       core: ['kb-side-swing','copenhagen-plank','tibialis-raise']
     },
@@ -1745,6 +1759,7 @@ function renderDayDetail(i) {
 
   // Build workout HTML
   let workoutHtml = wcNote;
+  activeDateStr = getDayDateStr(i);
   if (d.zones) {
     const zoneNames = { heavy: 'Heavy', support: 'Supporting', core: 'Core' };
     for (const zone of ['heavy','support','core']) {
@@ -1814,7 +1829,7 @@ function buildExerciseCard(id, ex, zone, isOpen, progBadge) {
   const feel = log.feel || '';
 
   const _logData = logs[id];
-  const isLogged = _logData && _logData.lastLogged && _logData.sets && _logData.sets.some(function(s){return s.logged;});
+  const isLogged = _logData && _logData.lastLogged && _logData.lastLogged === activeDateStr && _logData.sets && _logData.sets.some(function(s){return s.logged;});
   const loggedBadge = isLogged ? '<span class="logged-badge">&#x2713; ' + (_logData.lastLogged||'') + '</span>' : '';
 
   const tags = (ex.compound ? '<span class="ex-tag ex-tag-compound">Compound</span>' : '') +
